@@ -40,18 +40,20 @@ def dms_to_rad(d,m,s):
   rad = np.radians(d_float)
   return rad
 
-
-def xyz_philam(data, sat_nr):
+def mask_data(data, sat_nr):
   mask = data[data['PRN'] == sat_nr]
+  return mask
+
+def xyz_LamPhiH(data):
 
   transformer = Transformer.from_crs(
     "EPSG:4978",
     "EPSG:4326",
     always_xy=True)
 
-  lat, lon, height = transformer.transform(mask['X'], mask['Y'], mask['Z'])
-  philam_array = np.column_stack([lat, lon, height])
-  return philam_array
+  lon, lat, height = transformer.transform(data['X'], data['Y'], data['Z'])
+  #LamPhiH_array = np.column_stack([lon, lat, height])
+  return lon, lat, height
 
 
 def time_mask(df, range):
@@ -116,9 +118,9 @@ def plot_groundtrack(data):
   ax.stock_img()
   ax.coastlines()
 
-  lat = data[:,0]
-  lon = data[:,1]
-  ax.plot(lat, lon, linewidth=2, color='red', transform=ccrs.Geodetic())
+  lon = data[:,0]
+  lat = data[:,1]
+  ax.plot(lon, lat, linewidth=2, color='red', transform=ccrs.Geodetic())
   ax.gridlines(crs=ccrs.PlateCarree(), linewidth=1, color='black',
                draw_labels=True, alpha=0.5, linestyle='--')
 
