@@ -25,6 +25,22 @@ def df_cleaning(pos_df):
     return pos_df
 
 
+def dms_to_rad(d,m,s):
+  """
+  function to convert degree, minutes and seconds into radians
+  Args:
+    d: degree
+    m: minutes
+    s: seconds
+
+  Returns: radians
+
+  """
+  d_float = d + float(m)/60 + float(s)/3600
+  rad = np.radians(d_float)
+  return rad
+
+
 def xyz_philam(data, sat_nr):
   mask = data[data['PRN'] == sat_nr]
 
@@ -36,6 +52,13 @@ def xyz_philam(data, sat_nr):
   lat, lon, height = transformer.transform(mask['X'], mask['Y'], mask['Z'])
   philam_array = np.column_stack([lat, lon, height])
   return philam_array
+
+
+def time_mask(df, range):
+  start = range[0]
+  stop = range[1]
+  df = df.loc[(df["Minutes"] >= start) & (df["Minutes"] <= stop)]
+  return df
 
 
 def plot_orbit(pos_df, frame, prn_list):

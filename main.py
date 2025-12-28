@@ -39,6 +39,12 @@ f.plot_groundtrack(gps_30_mask)
 # VDOP (+vary mask angle)
 
 
+graz_xyz = np.column_stack([4195411.184, 1156914.919, 4647666.400]) #x,y,z coords of Graz Hbf
+
+range = [900, 1200]
+
+pos_ECEF_timemask = f.time_mask(pos_ECEF, range)
+
 #HDOP (+vary mask angle)
 
 
