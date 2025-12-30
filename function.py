@@ -126,3 +126,87 @@ def plot_groundtrack(data):
 
   plt.title("Groundtrack Plot", fontsize=12)
   plt.show()
+
+
+def create_rotation_matrix(pos_xyz):
+    '''Create rotation matrix to go from ECEF to N-E-U at a specific position'''
+    pos_lam, pos_phi, pos_H = xyz_LamPhiH(pos_xyz)
+    R_NEU = np.array([[-np.sin(pos_phi) * np.cos(pos_lam), -np.sin(pos_lam), -np.cos(pos_phi) * np.cos(pos_lam)],
+                       [-np.sin(pos_phi) * np.sin(pos_lam), np.cos(pos_lam), -np.cos(pos_phi) * np.sin(pos_lam)],
+                       [-np.cos(pos_phi), 0,
+                        np.sin(pos_phi)]])  # multiply third row by -1 to get N-E-U instead of N-E-D
+    return R_NEU
+
+def calculate_dop_series(pos_ECEF, minute_range, pos_xyz):
+    '''Function to calculate DOP values and nr of visible satellites at each epoch'''
+    pos_ECEF_timemask = time_mask(pos_ECEF, minute_range)
+    pos_ECEF_timemask_grouped = pos_ECEF_timemask.groupby('Minutes')
+
+    # Rotation matrix for Graz to go from ECEF to N-E-U
+    R_NEU = create_rotation_matrix(pos_xyz)
+
+    results = []
+
+    for minute, epoch_data in pos_ECEF_timemask_grouped:
+        # Build difference vectors
+        dx = epoch_data['X'] - pos_xyz['X']
+        dy = epoch_data['Y'] - pos_xyz['Y']
+        dz = epoch_data['Z'] - pos_xyz['Z']
+        dX = np.array([dx, dy, dz])
+
+        dX_local_level = R_NEU.T @ dX
+
+        # Calculate zenith angle for visibility mask
+        N = dX_local_level[0]
+        E = dX_local_level[1]
+        U = dX_local_level[2]
+        rho_local_level = np.sqrt(N ** 2 + E ** 2 + U ** 2)
+        z = np.arccos(U / rho_local_level)
+        # print(z)
+        elevation = np.pi / 2 - z  # elevation in radians
+        elevation_deg = np.degrees(elevation)
+
+        # Exclude satellites by elevation mask
+        elevation_mask_deg = 0
+        mask = elevation_deg >= elevation_mask_deg
+        dx_vis = dx[mask]
+        dy_vis = dy[mask]
+        dz_vis = dz[mask]
+
+        n_sats = len(dx_vis)
+
+        # Normalise vectors
+        rho = np.sqrt(dx_vis ** 2 + dy_vis ** 2 + dz_vis ** 2)
+        ux = dx_vis / rho
+        uy = dy_vis / rho
+        uz = dz_vis / rho
+
+        # Build design matrix
+        A = np.column_stack([-ux, -uy, -uz, np.ones_like(ux)])
+
+        Qx = np.linalg.inv(A.T @ A)
+
+        qxx, qyy, qzz, qtt = np.diag(Qx)
+        PDOP = np.sqrt(qxx + qyy + qzz)
+
+        # Get Qxyz
+        delete_row = np.delete(Qx, 3, 0)
+        Qxyz = np.delete(delete_row, 3, 1)
+
+        Qx_local_level = R_NEU.T @ Qxyz @ R_NEU
+        # print(Qx_local_level)
+
+        # Calculate HDOP and VDOP
+        qnn, qee, quu = np.diag(Qx_local_level)
+        HDOP = np.sqrt(qnn + qee)
+        VDOP = np.sqrt(quu)
+
+        results.append({
+            "Minutes": minute,
+            "n_sats": n_sats,
+            "PDOP": PDOP,
+            "HDOP": HDOP,
+            "VDOP": VDOP, })
+
+    DOP_df = pd.DataFrame(results).sort_values("Minutes")
+    return DOP_df
