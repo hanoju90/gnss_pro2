@@ -157,12 +157,8 @@ def calculate_dop_series(pos_ECEF, minute_range, pos_xyz):
         dX_local_level = R_NEU.T @ dX
 
         # Calculate zenith angle for visibility mask
-        N = dX_local_level[0]
-        E = dX_local_level[1]
-        U = dX_local_level[2]
-        rho_local_level = np.sqrt(N ** 2 + E ** 2 + U ** 2)
-        z = np.arccos(U / rho_local_level)
-        # print(z)
+        rho_local_level = np.linalg.norm(dX_local_level,2)
+        z = np.arccos(dX_local_level[2] / rho_local_level)
         elevation = np.pi / 2 - z  # elevation in radians
         elevation_deg = np.degrees(elevation)
 
@@ -197,9 +193,9 @@ def calculate_dop_series(pos_ECEF, minute_range, pos_xyz):
         # print(Qx_local_level)
 
         # Calculate HDOP and VDOP
-        qnn, qee, quu = np.diag(Qx_local_level)
+        qnn, qee, qdd = np.diag(Qx_local_level)
         HDOP = np.sqrt(qnn + qee)
-        VDOP = np.sqrt(quu)
+        VDOP = np.sqrt(qdd)
 
         results.append({
             "Minutes": minute,
