@@ -52,7 +52,6 @@ def xyz_LamPhiH(data):
     always_xy=True)
 
   lon, lat, height = transformer.transform(data['X'], data['Y'], data['Z'])
-  #LamPhiH_array = np.column_stack([lon, lat, height])
   return lon, lat, height
 
 
@@ -130,14 +129,42 @@ def plot_groundtrack(data):
 
 def create_rotation_matrix(pos_xyz):
     '''Create rotation matrix to go from ECEF to N-E-U at a specific position'''
-    pos_lam, pos_phi, pos_H = xyz_LamPhiH(pos_xyz)
+    # pos_lam, pos_phi, pos_H = xyz_LamPhiH(pos_xyz)
+    transformer = Transformer.from_crs("EPSG:4978", "EPSG:4326", always_xy=True)
+    pos_lam_deg, pos_phi_deg, __ = transformer.transform(pos_xyz['X'], pos_xyz['Y'], pos_xyz['Z'])
+    pos_lam = np.radians(pos_lam_deg)
+    pos_phi = np.radians(pos_phi_deg)
     R_NEU = np.array([[-np.sin(pos_phi) * np.cos(pos_lam), -np.sin(pos_lam), -np.cos(pos_phi) * np.cos(pos_lam)],
                        [-np.sin(pos_phi) * np.sin(pos_lam), np.cos(pos_lam), -np.cos(pos_phi) * np.sin(pos_lam)],
                        [-np.cos(pos_phi), 0,
                         np.sin(pos_phi)]])  # multiply third row by -1 to get N-E-U instead of N-E-D
     return R_NEU
 
-def calculate_dop_series(pos_ECEF, minute_range, pos_xyz):
+def find_visible_sats(epoch_data, pos_xyz, R_NEU, elevation_angle):
+    dx = epoch_data['X'] - pos_xyz['X']
+    dy = epoch_data['Y'] - pos_xyz['Y']
+    dz = epoch_data['Z'] - pos_xyz['Z']
+    dX = np.array([dx, dy, dz])
+    # Rotation matrix for Graz to go from ECEF to N-E-U
+    dX_local_level = R_NEU.T @ dX  # Rotate difference vector between receiver and satellite to local level frame
+    # Calculate zenith angle for visibility mask
+    # dX_norm_local_level = np.sqrt(dX_local_level[0]**2 + dX_local_level[1]**2 + dX_local_level[2]**2)
+    dX_norm_local_level = np.linalg.norm(dX_local_level, axis=0)  # Distance between receiver and satellite
+    z = np.arccos(dX_local_level[2, :] / dX_norm_local_level)  # Divide Z/Up-component by distance
+    elevation = np.pi / 2 - z  # elevation in radians
+    elevation_deg = np.degrees(elevation)
+
+    # Exclude satellites by elevation mask
+    elevation_mask_deg = elevation_angle
+    mask = elevation_deg >= elevation_mask_deg  # All angles greater than the defined mask angle
+    dx_vis = dx[mask]
+    dy_vis = dy[mask]
+    dz_vis = dz[mask]
+    return dx_vis, dy_vis, dz_vis
+
+
+
+def calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle):
     '''Function to calculate DOP values and nr of visible satellites at each epoch'''
     pos_ECEF_timemask = time_mask(pos_ECEF, minute_range)
     pos_ECEF_timemask_grouped = pos_ECEF_timemask.groupby('Minutes')
@@ -148,31 +175,22 @@ def calculate_dop_series(pos_ECEF, minute_range, pos_xyz):
     results = []
 
     for minute, epoch_data in pos_ECEF_timemask_grouped:
-        # Build difference vectors
-        dx = epoch_data['X'] - pos_xyz['X']
-        dy = epoch_data['Y'] - pos_xyz['Y']
-        dz = epoch_data['Z'] - pos_xyz['Z']
-        dX = np.array([dx, dy, dz])
-
-        dX_local_level = R_NEU.T @ dX
-
-        # Calculate zenith angle for visibility mask
-        rho_local_level = np.linalg.norm(dX_local_level,2)
-        z = np.arccos(dX_local_level[2] / rho_local_level)
-        elevation = np.pi / 2 - z  # elevation in radians
-        elevation_deg = np.degrees(elevation)
-
-        # Exclude satellites by elevation mask
-        elevation_mask_deg = 0
-        mask = elevation_deg >= elevation_mask_deg
-        dx_vis = dx[mask]
-        dy_vis = dy[mask]
-        dz_vis = dz[mask]
-
+        dx_vis, dy_vis, dz_vis = find_visible_sats(epoch_data, pos_xyz, R_NEU, elevation_angle)
         n_sats = len(dx_vis)
 
+        if n_sats < 4:
+            results.append({
+            "Minutes": minute,
+            "n_sats": n_sats,
+            "PDOP": np.nan,
+            "HDOP": np.nan,
+            "VDOP": np.nan})
+            continue
+
+
+
         # Normalise vectors
-        rho = np.sqrt(dx_vis ** 2 + dy_vis ** 2 + dz_vis ** 2)
+        rho = np.sqrt(dx_vis ** 2 + dy_vis ** 2 + dz_vis ** 2) # Distance between receiver and satellite
         ux = dx_vis / rho
         uy = dy_vis / rho
         uz = dz_vis / rho
@@ -193,16 +211,75 @@ def calculate_dop_series(pos_ECEF, minute_range, pos_xyz):
         # print(Qx_local_level)
 
         # Calculate HDOP and VDOP
-        qnn, qee, qdd = np.diag(Qx_local_level)
+        qnn, qee, quu = np.diag(Qx_local_level)
         HDOP = np.sqrt(qnn + qee)
-        VDOP = np.sqrt(qdd)
+        VDOP = np.sqrt(quu)
 
         results.append({
             "Minutes": minute,
             "n_sats": n_sats,
             "PDOP": PDOP,
             "HDOP": HDOP,
-            "VDOP": VDOP, })
+            "VDOP": VDOP})
 
     DOP_df = pd.DataFrame(results).sort_values("Minutes")
     return DOP_df
+
+def plot_nr_sats(pos_ECEF, minute_range, pos_xyz, elevation_angle, place_name):
+    DOP_df = calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle)
+    plt.figure()
+    plt.plot(DOP_df['Minutes'], DOP_df['n_sats'], marker='o', linestyle='-', color='blue')
+    plt.xlabel("Epoch")
+    plt.ylabel("Nr of Sats")
+    plt.title(f"{place_name}: Number of Satellites with Elevation Angle {elevation_angle}")
+    plt.grid()
+    plt.savefig(f"Results/{place_name}_nr_sats_{elevation_angle}.png")
+    plt.close()
+
+def plot_dop_timeseries(pos_ECEF, minute_range, pos_xyz, elevation_angle, place_name, dop_type):
+    DOP_df = calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle)
+    plt.figure()
+    plt.plot(DOP_df['Minutes'], DOP_df[f'{dop_type}'], marker='o', linestyle='-', color='blue')
+    plt.xlabel("Epoch")
+    plt.ylabel(f"{dop_type}")
+    plt.title(f"{place_name}: {dop_type} with Elevation Angle {elevation_angle}")
+    plt.grid()
+    plt.savefig(f"Results/{place_name}_{dop_type}_{elevation_angle}.png")
+    plt.close()
+
+
+def plot_nr_sats_comparison(pos_ECEF, minute_range, pos_xyz, elevation_angles, place_name):
+    plt.figure()
+    cmap = plt.get_cmap("viridis")
+    colors = cmap(np.linspace(0, 1, len(elevation_angles)))
+    for elevation_angle, color in zip(elevation_angles, colors):
+        DOP_df = calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle)
+        plt.plot(DOP_df['Minutes'], DOP_df['n_sats'], marker='o', linestyle='-',
+                 color=color, label=f"{elevation_angle}°")
+    plt.xlabel("Epoch")
+    plt.ylabel("Nr of Sats")
+    plt.title(f"{place_name}: Number of Satellites with different Elevation Angles")
+    plt.grid()
+    plt.legend()
+    plt.savefig(f'Results/{place_name}_nr_sats_comparison')
+    plt.close()
+
+
+
+def plot_dop_timeseries_comparison(pos_ECEF, minute_range, pos_xyz, elevation_angles, place_name, dop_type):
+    plt.figure()
+    cmap = plt.get_cmap("viridis")
+    colors = cmap(np.linspace(0, 1, len(elevation_angles)))
+
+    for elevation_angle, color in zip(elevation_angles, colors):
+        DOP_df = calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle)
+        plt.plot(DOP_df['Minutes'], DOP_df[f'{dop_type}'], marker='o', linestyle='-',
+                 color=color, label=f"{elevation_angle}°")
+    plt.xlabel("Epoch")
+    plt.ylabel(f"{dop_type} values")
+    plt.title(f"{place_name}: {dop_type} with different Elevation Angles")
+    plt.grid()
+    plt.legend()
+    plt.savefig(f'Results/{place_name}_{dop_type}_comparison')
+    plt.close()
+
