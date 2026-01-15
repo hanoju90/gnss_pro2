@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
-from pyproj import Transformer
 
 
 def read_data(pos_filename):
@@ -44,16 +43,28 @@ def mask_data(data, sat_nr):
   mask = data[data['PRN'] == sat_nr]
   return mask
 
-def xyz_LamPhiH(data):
+def xyz_to_lamphih(data):
+  X = data['X']
+  Y = data['Y']
+  Z = data['Z']
 
-  transformer = Transformer.from_crs(
-    "EPSG:4978",
-    "EPSG:4326",
-    always_xy=True)
+  a = 6378137.00000 #m
+  b = 6356752.31425 #m
 
-  lon, lat, height = transformer.transform(data['X'], data['Y'], data['Z'])
-  return lon, lat, height
+  e_strich_sq = (a**2 - b**2) / b**2
+  e_sq = (a**2 - b**2)/ a**2
+  c = (a**2)/b
+  p = np.sqrt(X**2 + Y**2)
+  theta = np.atan2(Z * a, p * b)
 
+  phi = np.atan2(Z + e_strich_sq * b * np.sin(theta)**3, p - e_sq * a * np.cos(theta)**3)
+  V = np.sqrt(1 + e_strich_sq * np.cos(phi)**2)
+  lam = np.atan2(Y, X)
+  phi_deg = phi * 180/np.pi
+  lam_deg = lam * 180/np.pi
+  h = (p/np.cos(phi)) - (c/V)
+
+  return lam_deg, phi_deg, h
 
 def time_mask(df, range):
   start = range[0]
@@ -61,6 +72,16 @@ def time_mask(df, range):
   df = df.loc[(df["Minutes"] >= start) & (df["Minutes"] <= stop)]
   return df
 
+def plot_orbit2(pos_df):
+  mu = 398600.4418
+  r = 6371000
+  D = 24 * 0.997269
+
+  fig = plt.figure()
+  ax = plt.axes(projection='3d', computed_zorder=False)
+  ax
+  u, v = np.mgrid[0:2*np.pi:20j, 0:np.pi:10j]
+  ax.plot_wireframe()
 
 def plot_orbit(pos_df, frame, prn_list):
     # Create earth form for plotting, source https://stackoverflow.com/questions/31768031/plotting-points-on-the-surface-of-a-sphere
@@ -95,16 +116,19 @@ def plot_orbit(pos_df, frame, prn_list):
         ax.set_box_aspect([1, 1, 1])
 
         # Earth
+        u, v = np.mgrid[0:2 * np.pi:20j, 0:np.pi:10j]
+        ax.plot_wireframe(r * np.cos(u) * np.sin(v), r * np.sin(u) * np.sin(v), r * np.cos(v), color="black", alpha=1,
+                          lw=1, zorder=0)
         ax.plot_surface(x, y, z, rstride=1, cstride=1, color='c', alpha=0.6, linewidth=0)
 
         # Orbit
-        ax.plot3D(x_pos, y_pos, z_pos, color='k')
+        ax.plot3D(x_pos, y_pos, z_pos, color='tab:blue', linewidth=2)
 
-        ax.set_xlabel('X')
-        ax.set_ylabel('Y')
-        ax.set_zlabel('Z')
+        ax.set_xlabel('x [m]')
+        ax.set_ylabel('y [m]')
+        ax.set_zlabel('z [m]')
         ax.set_title(plot_title)
-        ax.view_init(elev=20, azim=45)
+        ax.view_init(elev=30, azim=120)
 
         plt.show()
 
@@ -112,7 +136,7 @@ def plot_orbit(pos_df, frame, prn_list):
 def plot_groundtrack(data):
   '''Function to plot the orbit of a grace satellite on a specific background.'''
   plt.figure(figsize=(12, 6))
-  ax = plt.axes(projection=ccrs.PlateCarree())
+  ax = plt.axes()
 
   ax.stock_img()
   ax.coastlines()
@@ -130,8 +154,8 @@ def plot_groundtrack(data):
 def create_rotation_matrix(pos_xyz):
     '''Create rotation matrix to go from ECEF to N-E-U at a specific position'''
     # pos_lam, pos_phi, pos_H = xyz_LamPhiH(pos_xyz)
-    transformer = Transformer.from_crs("EPSG:4978", "EPSG:4326", always_xy=True)
-    pos_lam_deg, pos_phi_deg, __ = transformer.transform(pos_xyz['X'], pos_xyz['Y'], pos_xyz['Z'])
+    #transformer = Transformer.from_crs("EPSG:4978", "EPSG:4326", always_xy=True)
+    pos_lam_deg, pos_phi_deg, pos_h = xyz_to_lamphih(pos_xyz)
     pos_lam = np.radians(pos_lam_deg)
     pos_phi = np.radians(pos_phi_deg)
     R_NEU = np.array([[-np.sin(pos_phi) * np.cos(pos_lam), -np.sin(pos_lam), -np.cos(pos_phi) * np.cos(pos_lam)],
@@ -163,7 +187,6 @@ def find_visible_sats(epoch_data, pos_xyz, R_NEU, elevation_angle):
     return dx_vis, dy_vis, dz_vis
 
 
-
 def calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle):
     '''Function to calculate DOP values and nr of visible satellites at each epoch'''
     pos_ECEF_timemask = time_mask(pos_ECEF, minute_range)
@@ -186,8 +209,6 @@ def calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle):
             "HDOP": np.nan,
             "VDOP": np.nan})
             continue
-
-
 
         # Normalise vectors
         rho = np.sqrt(dx_vis ** 2 + dy_vis ** 2 + dz_vis ** 2) # Distance between receiver and satellite
@@ -283,3 +304,8 @@ def plot_dop_timeseries_comparison(pos_ECEF, minute_range, pos_xyz, elevation_an
     plt.savefig(f'Results/{place_name}_{dop_type}_comparison')
     plt.close()
 
+def exclude_sats(data, exclude_sat_list=[]):
+  removed_data = data
+  for i in exclude_sat_list:
+    removed_data = removed_data.drop(removed_data[removed_data['PRN'] == i].index)
+  return removed_data

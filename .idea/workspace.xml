@@ -4,8 +4,34 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5e3f5f57-ff2a-4981-917b-ddf7dc46c78b" name="Changes" comment="">
+    <list default="true" id="dcebbdf8-1da7-495c-bf6d-3d7439d8912d" name="Changes" comment="aufgehört bei Seite 17 in der Anleitung">
+      <change beforePath="$PROJECT_DIR$/.idea/gnss_pro2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gnss_pro2.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Bodo_HDOP_comparison.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_HDOP_comparison.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Bodo_PDOP_0.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_PDOP_0.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Bodo_PDOP_10.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_PDOP_10.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Bodo_PDOP_15.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_PDOP_15.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Bodo_PDOP_5.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_PDOP_5.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Bodo_PDOP_comparison.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_PDOP_comparison.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Bodo_VDOP_comparison.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_VDOP_comparison.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Bodo_nr_sats_0.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_nr_sats_0.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Bodo_nr_sats_10.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_nr_sats_10.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Bodo_nr_sats_15.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_nr_sats_15.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Bodo_nr_sats_5.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_nr_sats_5.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Bodo_nr_sats_comparison.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_nr_sats_comparison.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Graz_HDOP_comparison.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_HDOP_comparison.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Graz_PDOP_0.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_PDOP_0.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Graz_PDOP_10.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_PDOP_10.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Graz_PDOP_15.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_PDOP_15.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Graz_PDOP_5.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_PDOP_5.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Graz_PDOP_comparison.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_PDOP_comparison.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Graz_VDOP_comparison.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_VDOP_comparison.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Graz_nr_sats_0.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_nr_sats_0.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Graz_nr_sats_10.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_nr_sats_10.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Graz_nr_sats_15.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_nr_sats_15.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Graz_nr_sats_5.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_nr_sats_5.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Results/Graz_nr_sats_comparison.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_nr_sats_comparison.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/function.py" beforeDir="false" afterPath="$PROJECT_DIR$/function.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
@@ -16,38 +42,175 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
     &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;VitaDuit&quot;
+    &quot;assignee&quot;: &quot;hanoju90&quot;
   }
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/hanoju90/gnss_pro2&quot;,
-    &quot;accountId&quot;: &quot;467e0abc-2256-4310-ad98-402d42878182&quot;
+    &quot;url&quot;: &quot;https://github.com/hanoju90/gnss_pro2.git&quot;,
+    &quot;accountId&quot;: &quot;8f39000d-a689-45de-bc15-a2d26f040886&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
-  &quot;customColor&quot;: &quot;&quot;,
-  &quot;associatedIndex&quot;: 1
+  &quot;associatedIndex&quot;: 4
 }</component>
-  <component name="ProjectId" id="37W50mQxV389drXhntckZEIOWQT" />
+  <component name="ProjectId" id="37TOkTzjEadmXG12216afy9uyg3" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.function.executor": "Run",
-    "Python.main.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "C:/Users/vitad/studium/GST_S3/GNSS/gnss_pro2",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.function.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/joachimmoerth/Documents/GEODAESIE/3.sem/gnss/pro2&quot;
   }
-}]]></component>
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.main">
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="function" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="gnss_pro2" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/function.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="gnss_pro2" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.12" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docs" factoryName="Docutils task">
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
+      <option name="docutils_input_file" value="" />
+      <option name="docutils_output_file" value="" />
+      <option name="docutils_params" value="" />
+      <option name="docutils_task" value="" />
+      <option name="docutils_open_in_browser" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docs" factoryName="Sphinx task">
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
+      <option name="docutils_input_file" value="" />
+      <option name="docutils_output_file" value="" />
+      <option name="docutils_params" value="" />
+      <option name="docutils_task" value="" />
+      <option name="docutils_open_in_browser" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Doctests">
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method v="2" />
+    </configuration>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -58,12 +221,45 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="5e3f5f57-ff2a-4981-917b-ddf7dc46c78b" name="Changes" comment="" />
-      <created>1767005767378</created>
+      <changelist id="dcebbdf8-1da7-495c-bf6d-3d7439d8912d" name="Changes" comment="" />
+      <created>1766923737305</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1767005767378</updated>
+      <updated>1766923737305</updated>
     </task>
+    <task id="LOCAL-00001" summary="function for time range 900-1200min">
+      <option name="closed" value="true" />
+      <created>1766928492439</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1766928492439</updated>
+    </task>
+    <task id="LOCAL-00002" summary="aufgehört bei Seite 17 in der Anleitung">
+      <option name="closed" value="true" />
+      <created>1766962056769</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1766962056769</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="function for time range 900-1200min" />
+    <MESSAGE value="aufgehört bei Seite 17 in der Anleitung" />
+    <option name="LAST_COMMIT_MESSAGE" value="aufgehört bei Seite 17 in der Anleitung" />
   </component>
 </project>
