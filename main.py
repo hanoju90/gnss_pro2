@@ -19,7 +19,8 @@ pos_ECSF = f.df_cleaning(pos_ECSF)
 
 
 # Visualize ECEF and ECSF for given PRNs
-f.plot_orbit(pos_ECSF, 'ECEF', [3])
+f.plot_orbit(pos_ECSF, 'ECSF', [3])
+f.plot_orbit_2(pos_ECSF, [3], 'ECSF')
 
 
 # Visualize groundplot

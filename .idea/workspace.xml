@@ -4,34 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dcebbdf8-1da7-495c-bf6d-3d7439d8912d" name="Changes" comment="aufgehört bei Seite 17 in der Anleitung">
-      <change beforePath="$PROJECT_DIR$/.idea/gnss_pro2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gnss_pro2.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="dcebbdf8-1da7-495c-bf6d-3d7439d8912d" name="Changes" comment="skyplots fehlen">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Bodo_HDOP_comparison.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_HDOP_comparison.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Bodo_PDOP_0.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_PDOP_0.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Bodo_PDOP_10.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_PDOP_10.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Bodo_PDOP_15.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_PDOP_15.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Bodo_PDOP_5.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_PDOP_5.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Bodo_PDOP_comparison.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_PDOP_comparison.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Bodo_VDOP_comparison.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_VDOP_comparison.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Bodo_nr_sats_0.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_nr_sats_0.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Bodo_nr_sats_10.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_nr_sats_10.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Bodo_nr_sats_15.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_nr_sats_15.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Bodo_nr_sats_5.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_nr_sats_5.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Bodo_nr_sats_comparison.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Bodo_nr_sats_comparison.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Graz_HDOP_comparison.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_HDOP_comparison.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Graz_PDOP_0.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_PDOP_0.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Graz_PDOP_10.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_PDOP_10.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Graz_PDOP_15.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_PDOP_15.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Graz_PDOP_5.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_PDOP_5.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Graz_PDOP_comparison.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_PDOP_comparison.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Graz_VDOP_comparison.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_VDOP_comparison.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Graz_nr_sats_0.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_nr_sats_0.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Graz_nr_sats_10.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_nr_sats_10.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Graz_nr_sats_15.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_nr_sats_15.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Graz_nr_sats_5.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_nr_sats_5.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/Graz_nr_sats_comparison.png" beforeDir="false" afterPath="$PROJECT_DIR$/Results/Graz_nr_sats_comparison.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/function.py" beforeDir="false" afterPath="$PROJECT_DIR$/function.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
@@ -243,7 +217,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766962056769</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="skyplots fehlen">
+      <option name="closed" value="true" />
+      <created>1768509749984</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1768509749984</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -260,6 +242,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="function for time range 900-1200min" />
     <MESSAGE value="aufgehört bei Seite 17 in der Anleitung" />
-    <option name="LAST_COMMIT_MESSAGE" value="aufgehört bei Seite 17 in der Anleitung" />
+    <MESSAGE value="skyplots fehlen" />
+    <option name="LAST_COMMIT_MESSAGE" value="skyplots fehlen" />
   </component>
 </project>
