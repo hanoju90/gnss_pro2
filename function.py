@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
+import datetime
+from skyfield.api import Topos, load, wgs84
+from skyfield.sgp4lib import EarthSatellite
 
 
 def read_data(pos_filename):
@@ -212,7 +215,8 @@ def find_visible_sats(epoch_data, pos_xyz, R_NEU, elevation_angle):
     dx_vis = dx[mask]
     dy_vis = dy[mask]
     dz_vis = dz[mask]
-    return dx_vis, dy_vis, dz_vis
+    prns_vis = epoch_data['PRN'].to_numpy()[mask]
+    return dx_vis, dy_vis, dz_vis, prns_vis
 
 
 def calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle):
@@ -337,3 +341,37 @@ def exclude_sats(data, exclude_sat_list=[]):
   for i in exclude_sat_list:
     removed_data = removed_data.drop(removed_data[removed_data['PRN'] == i].index)
   return removed_data
+
+def plot_skyplots(pos_ecef, obs_xyz, elevation_angle):
+  R = create_rotation_matrix(obs_xyz)
+  dx_vis, dy_vis, dz_vis, prns_vis = find_visible_sats(pos_ecef, obs_xyz, R, elevation_angle)
+
+  dX_local = np.vstack([dx_vis, dy_vis, dz_vis])
+  dX_ll = R.T @ dX_local
+  N, E, U = dX_ll
+
+  az = np.atan2(E, N)
+  alt = np.atan2(U, np.sqrt(E ** 2 + N ** 2))
+
+  az_deg = (np.degrees(az) + 360) % 360
+  alt_deg = np.degrees(alt)
+
+  # Skyplot-Koordinaten
+  theta = np.radians(az_deg)
+  r = 90 - alt_deg
+
+  fig, ax = plt.subplots(subplot_kw={'projection': 'polar'}, figsize=(6, 6))
+
+  ax.plot(theta, r, 'o', color='black', markersize=2)
+
+  # Orientierung
+  ax.set_theta_zero_location('N')
+  ax.set_theta_direction(-1)
+
+  ax.set_rticks([0, 30, 60, 90])
+  ax.set_rlabel_position(225)
+
+  ax.set_thetagrids([0, 90, 180, 270], labels=['N', 'E', 'S', 'W'])
+  ax.grid(True)
+
+  plt.show()
