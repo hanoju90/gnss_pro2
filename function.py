@@ -72,17 +72,6 @@ def time_mask(df, range):
   df = df.loc[(df["Minutes"] >= start) & (df["Minutes"] <= stop)]
   return df
 
-def plot_orbit2(pos_df):
-  mu = 398600.4418
-  r = 6371000
-  D = 24 * 0.997269
-
-  fig = plt.figure()
-  ax = plt.axes(projection='3d', computed_zorder=False)
-
-  u, v = np.mgrid[0:2*np.pi:20j, 0:np.pi:10j]
-  ax.plot_wireframe()
-
 def plot_orbit(pos_df, frame, prn_list, compare=0):
     # Create earth form for plotting, source https://stackoverflow.com/questions/31768031/plotting-points-on-the-surface-of-a-sphere
     r = 6371000
@@ -105,11 +94,10 @@ def plot_orbit(pos_df, frame, prn_list, compare=0):
 
     for prn in prn_list:
         pos = pos_df[pos_df['PRN'] == prn]
-        x_pos = np.array(pos['X'])
-        y_pos = np.array(pos['Y'])
-        z_pos = np.array(pos['Z'])
+        x_pos = pos['X']
+        y_pos = pos['Y']
+        z_pos = pos['Z']
 
-        #fig = plt.figure()
         if compare == 0:
             plot_title = f"{frame} of PRN {prn}"
             ax = plt.axes(projection='3d')
@@ -124,24 +112,24 @@ def plot_orbit(pos_df, frame, prn_list, compare=0):
 
             # Earth
             u, v = np.mgrid[0:2 * np.pi:20j, 0:np.pi:10j]
-            ax.plot_wireframe(r * np.cos(u) * np.sin(v), r * np.sin(u) * np.sin(v), r * np.cos(v), color="black", alpha=1,
-                              lw=1, zorder=0)
-            ax.plot_surface(x, y, z, rstride=1, cstride=1, color='c', alpha=0.6, linewidth=0)
+            ax.plot_wireframe(r * np.cos(u) * np.sin(v), r * np.sin(u) * np.sin(v), r * np.cos(v), color="black",
+                              alpha=0.4, lw=1, zorder=0)
+            ax.plot_surface(x, y, z, rstride=1, cstride=1, color='lightgrey', alpha=0.4, linewidth=0)
 
             # Orbit
-            ax.plot3D(x_pos, y_pos, z_pos, color='tab:red', linewidth=2)
+            ax.plot(x_pos, y_pos, z_pos, color='tab:red', linewidth=2, alpha=1)
 
             ax.set_xlabel('x [m]')
             ax.set_ylabel('y [m]')
             ax.set_zlabel('z [m]')
             ax.set_title(plot_title)
-            #ax.view_init(elev=30, azim=120)
+            # ax.view_init(elev=30, azim=120)
             plt.savefig(f"Results/Orbit_{prn}_{frame}.png")
             plt.close()
         elif compare == 1:
             # Orbit
             color = np.random.rand(3, )
-            ax_comp.plot3D(x_pos, y_pos, z_pos, color=color, linewidth=2, label=f"PRN {prn}")
+            ax_comp.plot(x_pos, y_pos, z_pos, color=color, linewidth=2, label=f"PRN {prn}", alpha=1)
 
     if compare == 1:
         plot_title = f"Comparison of all Satellite Orbits in {frame}"
@@ -153,9 +141,9 @@ def plot_orbit(pos_df, frame, prn_list, compare=0):
 
         # Earth
         u, v = np.mgrid[0:2 * np.pi:20j, 0:np.pi:10j]
-        ax_comp.plot_wireframe(r * np.cos(u) * np.sin(v), r * np.sin(u) * np.sin(v), r * np.cos(v), color="black", alpha=1,
-                          lw=1, zorder=0)
-        ax_comp.plot_surface(x, y, z, rstride=1, cstride=1, color='c', alpha=0.6, linewidth=0)
+        ax_comp.plot_wireframe(r * np.cos(u) * np.sin(v), r * np.sin(u) * np.sin(v), r * np.cos(v), color="black",
+                               alpha=0.4, lw=1, zorder=0)
+        ax_comp.plot_surface(x, y, z, rstride=1, cstride=1, color='lightgrey', alpha=0.4, linewidth=0)
 
         ax_comp.set_xlabel('x [m]')
         ax_comp.set_ylabel('y [m]')
@@ -163,9 +151,11 @@ def plot_orbit(pos_df, frame, prn_list, compare=0):
         ax_comp.set_title(plot_title)
         ax_comp.legend(bbox_to_anchor=(1.12, 0.5), loc="center left", borderaxespad=0)
         # ax.view_init(elev=30, azim=120)
-        #plt.show()
+        # plt.show()
         plt.savefig(f"Results/Orbits_comparison_{frame}.png", bbox_inches="tight")
         plt.close()
+
+
 
 
 
