@@ -18,8 +18,19 @@ pos_ECEF = f.df_cleaning(pos_ECEF)
 pos_ECSF = f.df_cleaning(pos_ECSF)
 
 
-# Visualize ECEF and ECSF for given PRNs
-f.plot_orbit(pos_ECSF, 'ECEF', [3])
+# Visualize ECEF and ECSF for selected PRNs
+prn_list = [1, 3, 5, 30]
+f.plot_orbit(pos_ECEF, 'ECEF', prn_list)
+f.plot_orbit(pos_ECSF, 'ECSF', prn_list)
+
+# Visualize ECEF and ECSF satellite orbits: comparison of all satellites
+prn_list_all_ECEF = pos_ECEF['PRN'].unique().tolist()
+f.plot_orbit(pos_ECEF, 'ECEF', prn_list_all_ECEF, 1)
+
+prn_list_all_ECSF = pos_ECSF['PRN'].unique().tolist()
+f.plot_orbit(pos_ECSF, 'ECSF', prn_list_all_ECSF, 1)
+
+
 
 
 # Visualize groundplot
@@ -31,8 +42,8 @@ gps30_lam, gps30_phi, gps30_H = f.xyz_to_lamphih(gps_30_mask)
 gps1_array = np.column_stack([gps1_lam, gps1_phi, gps1_H])
 gps30_array = np.column_stack([gps30_lam, gps30_phi, gps30_H])
 
-#f.plot_groundtrack(gps1_array)
-#f.plot_groundtrack(gps30_array)
+f.plot_groundtrack(gps1_array, 1)
+f.plot_groundtrack(gps30_array, 30)
 
 
 
