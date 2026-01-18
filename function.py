@@ -3,12 +3,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 from itertools import cycle
-import datetime
-from skyfield.api import Topos, load, wgs84
-from skyfield.sgp4lib import EarthSatellite
 
 
 def read_data(pos_filename):
+    """
+      Function to read in satellite position data
+      Args:
+        pos_filename: filename of the file with satellite position data
+
+      Returns: Dataframe of the position data file
+
+    """
     pos_df = pd.read_csv(
       f"Data/{pos_filename}",
         sep=r"\s+",
@@ -20,6 +25,14 @@ def read_data(pos_filename):
 
 
 def df_cleaning(pos_df):
+    """
+          Function to clean and adjust the Dataframe of the satellite positions for further processing
+          Args:
+            pos_df: Dataframe with satellite position data
+
+          Returns: Dataframe of the cleaned position data file
+
+        """
     # Convert Date and Time columns to a single column counting the minutes from the measurement start
     pos_df["D"] = pd.to_datetime(pos_df["Date"] + " " + pos_df["Time"], utc=True)
     pos_df = pos_df.drop(columns=["Date", "Time"])
@@ -29,55 +42,92 @@ def df_cleaning(pos_df):
 
 
 def dms_to_rad(d,m,s):
-  """
-  function to convert degree, minutes and seconds into radians
-  Args:
-    d: degree
-    m: minutes
-    s: seconds
+    """
+    function to convert degree, minutes and seconds into radians
+    Args:
+      d: degree
+      m: minutes
+      s: seconds
 
-  Returns: radians
+    Returns: radians
 
-  """
-  d_float = d + float(m)/60 + float(s)/3600
-  rad = np.radians(d_float)
-  return rad
+    """
+    d_float = d + float(m)/60 + float(s)/3600
+    rad = np.radians(d_float)
+    return rad
 
 def mask_data(data, sat_nr):
-  mask = data[data['PRN'] == sat_nr]
-  return mask
+    """
+          Function to filter for a specific satellite in the position file
+          Args:
+            data: Dataframe of the position data file
+            sat_nr: PRN number of the satellite that should be filtered for
+
+          Returns: Dataframe of the position data file filtered for the given satellite
+
+        """
+    mask = data[data['PRN'] == sat_nr]
+    return mask
 
 def xyz_to_lamphih(data):
-  X = data['X']
-  Y = data['Y']
-  Z = data['Z']
+    """
+          Function to convert ECEF (X,Y,Z) coordinates to geodetic (lambda, phi, h) coordinates.
+          Args:
+            data: Dataframe with X, Y, Z coordinates
 
-  a = 6378137.00000 #m
-  b = 6356752.31425 #m
+          Returns: Tuple of the geodetic coordinates
 
-  e_strich_sq = (a**2 - b**2) / b**2
-  e_sq = (a**2 - b**2)/ a**2
-  c = (a**2)/b
-  p = np.sqrt(X**2 + Y**2)
-  theta = np.atan2(Z * a, p * b)
+        """
+    X = data['X']
+    Y = data['Y']
+    Z = data['Z']
 
-  phi = np.atan2(Z + e_strich_sq * b * np.sin(theta)**3, p - e_sq * a * np.cos(theta)**3)
-  V = np.sqrt(1 + e_strich_sq * np.cos(phi)**2)
-  lam = np.atan2(Y, X)
-  phi_deg = phi * 180/np.pi
-  lam_deg = lam * 180/np.pi
-  h = (p/np.cos(phi)) - (c/V)
+    a = 6378137.00000 #m
+    b = 6356752.31425 #m
 
-  return lam_deg, phi_deg, h
+    e_strich_sq = (a**2 - b**2) / b**2
+    e_sq = (a**2 - b**2)/ a**2
+    c = (a**2)/b
+    p = np.sqrt(X**2 + Y**2)
+    theta = np.atan2(Z * a, p * b)
+
+    phi = np.atan2(Z + e_strich_sq * b * np.sin(theta)**3, p - e_sq * a * np.cos(theta)**3)
+    V = np.sqrt(1 + e_strich_sq * np.cos(phi)**2)
+    lam = np.atan2(Y, X)
+    phi_deg = phi * 180/np.pi
+    lam_deg = lam * 180/np.pi
+    h = (p/np.cos(phi)) - (c/V)
+
+    return lam_deg, phi_deg, h
 
 def time_mask(df, range):
-  start = range[0]
-  stop = range[1]
-  df = df.loc[(df["Minutes"] >= start) & (df["Minutes"] <= stop)]
-  return df
+    """
+        Function to filter the Dataframe of the satellite position data to a given time slot
+        Args:
+          df: Dataframe with position data
+          range: time range in minutes that the data should be filtered to
+
+        Returns: filtered Dataframe
+
+        """
+    start = range[0]
+    stop = range[1]
+    df = df.loc[(df["Minutes"] >= start) & (df["Minutes"] <= stop)]
+    return df
 
 def plot_orbit(pos_df, frame, prn_list, compare=0):
-    # Create earth form for plotting, source https://stackoverflow.com/questions/31768031/plotting-points-on-the-surface-of-a-sphere
+    """
+        Plot satellite orbit(s) of one or more given satellite(s), either individually or in comparison
+        Args:
+          pos_df: Dataframe with position data
+          frame: ECEF or ECSF (for title and filename)
+          prn_list: list of satellites to be plotted
+          compare: Boolean that indicates whether to plot each orbit individually (0) or all in one plot for comparison (1)
+
+        Returns: figure of satellite orbits
+
+        """
+    # Create earth form for plotting
     r = 6371000
     pi = np.pi
     cos = np.cos
@@ -164,7 +214,15 @@ def plot_orbit(pos_df, frame, prn_list, compare=0):
 
 
 def plot_groundtrack(data, prn_nr):
-  '''Function to plot the orbit of a grace satellite on a specific background.'''
+  '''
+  Function to plot the orbit of a grace satellite on a specific background.
+    Args:
+        data: Dataframe with the position data
+        prn_nr: PRN number of the satellite that should be visualized
+
+  Returns: Figure of the groundtrack of the given satellite.
+
+  '''
   plt.figure(figsize=(12, 6))
   ax = plt.axes(projection=ccrs.PlateCarree())
   #ax = plt.axes()
@@ -184,28 +242,46 @@ def plot_groundtrack(data, prn_nr):
 
 
 def create_rotation_matrix(pos_xyz):
-    '''Create rotation matrix to go from ECEF to N-E-U at a specific position'''
-    # pos_lam, pos_phi, pos_H = xyz_LamPhiH(pos_xyz)
-    #transformer = Transformer.from_crs("EPSG:4978", "EPSG:4326", always_xy=True)
+    '''
+    Create rotation matrix to go from ECEF to N-E-D at a specific position
+        Args:
+            pos_xyz: ECEF coordinates of the position for which the rotation matrix should be calculated
+
+        Returns: numpy array of the rotation matrix
+    '''
+
     pos_lam_deg, pos_phi_deg, pos_h = xyz_to_lamphih(pos_xyz)
     pos_lam = np.radians(pos_lam_deg)
     pos_phi = np.radians(pos_phi_deg)
-    R_NEU = np.array([[-np.sin(pos_phi) * np.cos(pos_lam), -np.sin(pos_lam), np.cos(pos_phi) * -np.cos(pos_lam)],
+    R_NED = np.array([[-np.sin(pos_phi) * np.cos(pos_lam), -np.sin(pos_lam), np.cos(pos_phi) * -np.cos(pos_lam)],
                        [-np.sin(pos_phi) * np.sin(pos_lam), np.cos(pos_lam), np.cos(pos_phi) * -np.sin(pos_lam)],
                        [np.cos(pos_phi), 0,
                         -np.sin(pos_phi)]])
-    return R_NEU
+    return R_NED
 
-def find_visible_sats(epoch_data, pos_xyz, R_NEU, elevation_angle):
+def find_visible_sats(epoch_data, pos_xyz, R_NED, elevation_angle):
+    """
+        Find the visible satellites from a given receiver position at a given time
+        Args:
+          epoch_data: Position data of all satellites at a given epoch
+          pos_xyz: Receiver position
+          R_NED: rotation matrix to go from ECEF to N-E-D
+          elevation_angle: min. angle above horizon for satellite to be marked as visible
+
+        Returns: visible satellites
+
+        """
+    # Build difference vectors between receiver and satellite position
     dx = epoch_data['X'] - pos_xyz['X']
     dy = epoch_data['Y'] - pos_xyz['Y']
     dz = epoch_data['Z'] - pos_xyz['Z']
     dX = np.array([dx, dy, dz])
-    # Rotation matrix for Graz to go from ECEF to N-E-U
-    dX_local_level = R_NEU.T @ dX  # Rotate difference vector between receiver and satellite to local level frame
+    # Rotate difference vector to N-E-D (local level frame)
+    dX_local_level = R_NED.T @ dX
+
     # Calculate zenith angle for visibility mask
     dX_norm_local_level = np.linalg.norm(dX_local_level, axis=0)  # Distance between receiver and satellite
-    z = np.arccos(-dX_local_level[2, :] / dX_norm_local_level)  # Divide Z/Up-component by distance
+    z = np.arccos(-dX_local_level[2, :] / dX_norm_local_level)  # Divide Z/Up-component by distance (Down-component set negative)
     elevation = np.pi / 2 - z  # elevation in radians
 
     # Exclude satellites by elevation mask
@@ -220,17 +296,25 @@ def find_visible_sats(epoch_data, pos_xyz, R_NEU, elevation_angle):
 
 
 def calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle):
-    '''Function to calculate DOP values and nr of visible satellites at each epoch'''
+    '''Function to calculate DOP values for a given position at each epoch
+        Args:
+            pos_ECEF: Dataframe with satellite positions
+            minute_range: time range within which DOP values should be calculated
+            pos_xyz: receiver position
+            elevation_angle: given angle for elevation mask
+
+        Returns: Dataframe with DOP-value for each epoch
+    '''
     pos_ECEF_timemask = time_mask(pos_ECEF, minute_range)
     pos_ECEF_timemask_grouped = pos_ECEF_timemask.groupby('Minutes')
 
     # Rotation matrix for Graz to go from ECEF to N-E-U
-    R_NEU = create_rotation_matrix(pos_xyz)
+    R_NED = create_rotation_matrix(pos_xyz)
 
     results = []
 
     for minute, epoch_data in pos_ECEF_timemask_grouped:
-        dx_vis, dy_vis, dz_vis, prn_vis = find_visible_sats(epoch_data, pos_xyz, R_NEU, elevation_angle)
+        dx_vis, dy_vis, dz_vis, prn_vis = find_visible_sats(epoch_data, pos_xyz, R_NED, elevation_angle)
         n_sats = len(dx_vis)
 
         if n_sats < 4:
@@ -254,14 +338,15 @@ def calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle):
         Qx = np.linalg.inv(A.T @ A)
 
         qxx, qyy, qzz, qtt = np.diag(Qx)
+
+        # Calculate PDOP from Qx
         PDOP = np.sqrt(qxx + qyy + qzz)
 
         # Get Qxyz
         delete_row = np.delete(Qx, 3, 0)
         Qxyz = np.delete(delete_row, 3, 1)
 
-        Qx_local_level = R_NEU.T @ Qxyz @ R_NEU
-        # print(Qx_local_level)
+        Qx_local_level = R_NED.T @ Qxyz @ R_NED
 
         # Calculate HDOP and VDOP
         qnn, qee, quu = np.diag(Qx_local_level)
@@ -279,51 +364,111 @@ def calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle):
     return DOP_df
 
 def plot_nr_sats(pos_ECEF, minute_range, pos_xyz, elevation_angle, place_name):
+    """
+        Plot the number of visible satellites from a given position depending on the elevation mask
+        Args:
+          pos_ECEF: Dataframe with satellite positions
+          minute_range: time range within which DOP values should be calculated
+          pos_xyz: receiver position
+          elevation_angle: given angle for elevation mask
+          place_name: Place name for plot title and filename
+
+        Returns: Plot which shows the number of satellites for each epoch
+
+        """
     DOP_df = calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle)
-    fig = plt.figure()
     plt.plot(DOP_df['Minutes'], DOP_df['n_sats'], color='blue')
     plt.xlabel("Time [min]")
     plt.ylabel("Number of visible Satellites")
     plt.suptitle(f"{place_name}: Number of Satellites", fontsize=16)
-    plt.title(f'Elevation Angle: {elevation_angle}', fontsize=12)
+    plt.title(f'Elevation Angle: {elevation_angle}°', fontsize=12)
     plt.grid()
-    plt.show()
-    #plt.savefig(f"Results/{place_name}_nr_sats_{elevation_angle}.png")
-    #plt.close()
+    #plt.show()
+    plt.savefig(f"Results/{place_name}_nr_sats_{elevation_angle}.png")
+    plt.close()
 
-def plot_dop_timeseries(pos_ECEF, minute_range, pos_xyz, elevation_angle, place_name, dop_type):
+def plot_dop_timeseries(pos_ECEF, minute_range, pos_xyz, elevation_angle, place_name, dop_type, exclude_sat_list=None):
+    '''
+    Plot DOP timeseries for a given position
+        Args:
+            pos_ECEF: Dataframe with satellite positions
+            minute_range: time range within which DOP values should be calculated
+            pos_xyz: receiver position
+            elevation_angle: given angle for elevation mask
+            place_name: Place name for plot title and filename
+            dop_type: indicates which DOP value to plot: PDOP, HDOP or VDOP
+            exclude_sat_list: if needed, a list of satellites to be excluded from the calculations
+
+        Returns: Plot with DOP timeseries
+    '''
     DOP_df = calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle)
+
+    # Build strings for title and filename to inform about satellites excluded in the calculation
+    exclude_str_suptitle = f" with excluded{''.join(f' {sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
+    exclude_str_filename = f"_excl{''.join(f'_{sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
     plt.figure()
     plt.plot(DOP_df['Minutes'], DOP_df[f'{dop_type}'], color='blue')
     plt.xlabel("Time [min]")
     plt.ylabel(f"{dop_type} Values")
     plt.suptitle(f"{place_name}: {dop_type}", fontsize=16)
-    plt.title(f'Elevation Angle {elevation_angle}', fontsize=12)
+    plt.title(f'Elevation Angle {elevation_angle}°{exclude_str_suptitle}°', fontsize=12)
     plt.grid()
-    plt.show()
-    #plt.savefig(f"Results/{place_name}_{dop_type}_{elevation_angle}.png")
-    #plt.close()
+    #plt.show()
+    plt.savefig(f"Results/{place_name}_{dop_type}_{elevation_angle}{exclude_str_filename}.png")
+    plt.close()
 
 
-def plot_nr_sats_comparison(pos_ECEF, minute_range, pos_xyz, elevation_angles, place_name):
+def plot_nr_sats_comparison(pos_ECEF, minute_range, pos_xyz, elevation_angles, place_name, exclude_sat_list=None):
+    '''
+    Plot the number of visible satellites from a given position for different elevation masks
+    Args:
+            pos_ECEF: Dataframe with satellite positions
+            minute_range: time range within which DOP values should be calculated
+            pos_xyz: receiver position
+            elevation_angles: given angles for elevation masks
+            place_name: Place name for plot title and filename
+            exclude_sat_list: if needed, a list of satellites to be excluded from the calculations
+    Returns:
+         Plot with the number of satellites for each elevation mask
+    '''
+
+    exclude_str_suptitle = f" with excluded{''.join(f' {sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
+    exclude_str_filename = f"_excl{''.join(f'_{sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
     plt.figure()
     cmap = plt.get_cmap("tab10")
     color_cycle = cycle(cmap.colors)
     for elevation_angle in elevation_angles:
         DOP_df = calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle)
+        print(f"Average number of satellites in {place_name} with elev angle {elevation_angle}: {DOP_df['n_sats'].mean():.1f}")
         plt.plot(DOP_df['Minutes'], DOP_df['n_sats'],
                  color=next(color_cycle), label=f"{elevation_angle}°")
     plt.xlabel("Time [min]")
     plt.ylabel("Number of visible Satellites")
     plt.suptitle(f"Number of Satellites with different Elevation Angles", fontsize=16)
-    plt.title(f'{place_name}', fontsize=12)
+    plt.title(f'{place_name}{exclude_str_suptitle}', fontsize=12)
     plt.grid()
     plt.legend()
-    plt.show()
-    #plt.savefig(f'Results/{place_name}_nr_sats_comparison')
-    #plt.close()
+    #plt.show()
+    plt.savefig(f'Results/{place_name}_nr_sats_comparison{exclude_str_filename}')
+    plt.close()
 
-def plot_dop_timeseries_comparison(pos_ECEF, minute_range, pos_xyz, elevation_angles, place_name, dop_type):
+def plot_dop_timeseries_comparison(pos_ECEF, minute_range, pos_xyz, elevation_angles, place_name, dop_type, exclude_sat_list=None):
+    '''
+    Plot the DOP-timeseries for different elevation masks in one plot to compare
+    Args:
+            pos_ECEF: Dataframe with satellite positions
+            minute_range: time range within which DOP values should be calculated
+            pos_xyz: receiver position
+            elevation_angles: given angles for elevation masks
+            place_name: Place name for plot title and filename
+            dop_type: indicates which DOP value to plot: PDOP, HDOP or VDOP
+            exclude_sat_list: if needed, a list of satellites to be excluded from the calculations
+
+    Returns: Plot with DOP-timeseries for each elevation mask
+    '''
+
+    exclude_str_suptitle = f" with excluded{''.join(f' {sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
+    exclude_str_filename = f"_excl{''.join(f'_{sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
     plt.figure()
     cmap = plt.get_cmap("tab10")
     color_cycle = cycle(cmap.colors)
@@ -334,21 +479,41 @@ def plot_dop_timeseries_comparison(pos_ECEF, minute_range, pos_xyz, elevation_an
     plt.xlabel("Time [min]")
     plt.ylabel(f"{dop_type} Values")
     plt.suptitle(f"{dop_type} with different Elevation Angles", fontsize=16)
-    plt.title(f'{place_name}', fontsize=12)
+    plt.title(f'{place_name}{exclude_str_suptitle}', fontsize=12)
     plt.grid()
     plt.legend()
-    plt.show()
-    #plt.savefig(f'Results/{place_name}_{dop_type}_comparison')
-    #plt.close()
+    #plt.show()
+    plt.savefig(f'Results/{place_name}_{dop_type}_comparison{exclude_str_filename}')
+    plt.close()
 
 def exclude_sats(data, exclude_sat_list=[]):
-  removed_data = data
-  for i in exclude_sat_list:
-    removed_data = removed_data.drop(removed_data[removed_data['PRN'] == i].index)
-  return removed_data
+    '''
+    Function to exclude satellites from the position Dataframe
+    Args:
+        data: Dataframe with satellite position data
+        exclude_sat_list: list of satellites to be excluded from the Dataframe
+    Returns:
+        Dataframe without the passed satellites
+    '''
+
+    removed_data = data
+    for i in exclude_sat_list:
+      removed_data = removed_data.drop(removed_data[removed_data['PRN'] == i].index)
+    return removed_data
 
 
-def plot_skyplots(pos_ecef, obs_xyz, elevation_angle, place_name):
+def plot_skyplots(pos_ecef, obs_xyz, elevation_angle, place_name, exclude_sat_list=None):
+  '''
+  Create skyplots of the visible satellites at a given position for a given elevation mask
+  Args:
+      pos_ecef: Dataframe with satellite positions
+      obs_xyz: receiver position
+      elevation_angle: given angle for elevation mask
+      place_name: Place name for plot title and filename
+      exclude_sat_list: if needed, a list of satellites to be excluded from the calculations
+  Returns:
+        Skyplot of the receiver position
+  '''
   R = create_rotation_matrix(obs_xyz)
 
   dx_vis, dy_vis, dz_vis, prns_vis = find_visible_sats(pos_ecef, obs_xyz, R, elevation_angle)
@@ -371,6 +536,9 @@ def plot_skyplots(pos_ecef, obs_xyz, elevation_angle, place_name):
   theta = np.radians(az_deg)
   r = 90 - elevation_deg
 
+  exclude_str_suptitle = f" with excluded{''.join(f' {sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
+  exclude_str_filename = f"_excl{''.join(f'_{sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
+
   fig, ax = plt.subplots(subplot_kw={'projection': 'polar'}, figsize=(6, 6))
   fig.subplots_adjust(right=0.70)
   for prn in np.unique(prns_vis):
@@ -387,8 +555,9 @@ def plot_skyplots(pos_ecef, obs_xyz, elevation_angle, place_name):
     ax.set_rlim(0, 90)
     ax.grid(True)
     ax.legend(loc='center right', bbox_to_anchor=(1.45, 0.5), fontsize=9)
-    plt.suptitle(f'Skyplot {place_name}', fontsize=16, y=0.94)
-    plt.title(f'Elevation Mask: {elevation_angle}°', fontsize=12, x=0.65, pad=15)
-
-  plt.show()
+  plt.suptitle(f'Skyplot {place_name}', fontsize=16, y=0.94)
+  plt.title(f'Elevation Mask: {elevation_angle}°{exclude_str_suptitle}', fontsize=12, x=0.65, pad=15)
+  plt.savefig(f"Results/{place_name}_skyplot_{elevation_angle}{exclude_str_filename}")
+  #plt.show()
+  plt.close()
 
