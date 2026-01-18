@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
+from itertools import cycle
 import datetime
 from skyfield.api import Topos, load, wgs84
 from skyfield.sgp4lib import EarthSatellite
@@ -189,10 +190,10 @@ def create_rotation_matrix(pos_xyz):
     pos_lam_deg, pos_phi_deg, pos_h = xyz_to_lamphih(pos_xyz)
     pos_lam = np.radians(pos_lam_deg)
     pos_phi = np.radians(pos_phi_deg)
-    R_NEU = np.array([[-np.sin(pos_phi) * np.cos(pos_lam), -np.sin(pos_lam), -np.cos(pos_phi) * np.cos(pos_lam)],
-                       [-np.sin(pos_phi) * np.sin(pos_lam), np.cos(pos_lam), -np.cos(pos_phi) * np.sin(pos_lam)],
-                       [-np.cos(pos_phi), 0,
-                        np.sin(pos_phi)]])  # multiply third row by -1 to get N-E-U instead of N-E-D
+    R_NEU = np.array([[-np.sin(pos_phi) * np.cos(pos_lam), -np.sin(pos_lam), np.cos(pos_phi) * -np.cos(pos_lam)],
+                       [-np.sin(pos_phi) * np.sin(pos_lam), np.cos(pos_lam), np.cos(pos_phi) * -np.sin(pos_lam)],
+                       [np.cos(pos_phi), 0,
+                        -np.sin(pos_phi)]])
     return R_NEU
 
 def find_visible_sats(epoch_data, pos_xyz, R_NEU, elevation_angle):
@@ -203,20 +204,19 @@ def find_visible_sats(epoch_data, pos_xyz, R_NEU, elevation_angle):
     # Rotation matrix for Graz to go from ECEF to N-E-U
     dX_local_level = R_NEU.T @ dX  # Rotate difference vector between receiver and satellite to local level frame
     # Calculate zenith angle for visibility mask
-    # dX_norm_local_level = np.sqrt(dX_local_level[0]**2 + dX_local_level[1]**2 + dX_local_level[2]**2)
     dX_norm_local_level = np.linalg.norm(dX_local_level, axis=0)  # Distance between receiver and satellite
-    z = np.arccos(dX_local_level[2, :] / dX_norm_local_level)  # Divide Z/Up-component by distance
+    z = np.arccos(-dX_local_level[2, :] / dX_norm_local_level)  # Divide Z/Up-component by distance
     elevation = np.pi / 2 - z  # elevation in radians
-    elevation_deg = np.degrees(elevation)
 
     # Exclude satellites by elevation mask
-    elevation_mask_deg = elevation_angle
-    mask = elevation_deg >= elevation_mask_deg  # All angles greater than the defined mask angle
+    mask = elevation >= np.radians(elevation_angle)
+    # All angles greater than the defined mask angle
     dx_vis = dx[mask]
     dy_vis = dy[mask]
     dz_vis = dz[mask]
     prns_vis = epoch_data['PRN'].to_numpy()[mask]
     return dx_vis, dy_vis, dz_vis, prns_vis
+
 
 
 def calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle):
@@ -230,7 +230,7 @@ def calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle):
     results = []
 
     for minute, epoch_data in pos_ECEF_timemask_grouped:
-        dx_vis, dy_vis, dz_vis = find_visible_sats(epoch_data, pos_xyz, R_NEU, elevation_angle)
+        dx_vis, dy_vis, dz_vis, prn_vis = find_visible_sats(epoch_data, pos_xyz, R_NEU, elevation_angle)
         n_sats = len(dx_vis)
 
         if n_sats < 4:
@@ -280,61 +280,66 @@ def calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle):
 
 def plot_nr_sats(pos_ECEF, minute_range, pos_xyz, elevation_angle, place_name):
     DOP_df = calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle)
-    plt.figure()
-    plt.plot(DOP_df['Minutes'], DOP_df['n_sats'], marker='o', linestyle='-', color='blue')
-    plt.xlabel("Epoch")
-    plt.ylabel("Nr of Sats")
-    plt.title(f"{place_name}: Number of Satellites with Elevation Angle {elevation_angle}")
+    fig = plt.figure()
+    plt.plot(DOP_df['Minutes'], DOP_df['n_sats'], color='blue')
+    plt.xlabel("Time [min]")
+    plt.ylabel("Number of visible Satellites")
+    plt.suptitle(f"{place_name}: Number of Satellites", fontsize=16)
+    plt.title(f'Elevation Angle: {elevation_angle}', fontsize=12)
     plt.grid()
-    plt.savefig(f"Results/{place_name}_nr_sats_{elevation_angle}.png")
-    plt.close()
+    plt.show()
+    #plt.savefig(f"Results/{place_name}_nr_sats_{elevation_angle}.png")
+    #plt.close()
 
 def plot_dop_timeseries(pos_ECEF, minute_range, pos_xyz, elevation_angle, place_name, dop_type):
     DOP_df = calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle)
     plt.figure()
-    plt.plot(DOP_df['Minutes'], DOP_df[f'{dop_type}'], marker='o', linestyle='-', color='blue')
-    plt.xlabel("Epoch")
-    plt.ylabel(f"{dop_type}")
-    plt.title(f"{place_name}: {dop_type} with Elevation Angle {elevation_angle}")
+    plt.plot(DOP_df['Minutes'], DOP_df[f'{dop_type}'], color='blue')
+    plt.xlabel("Time [min]")
+    plt.ylabel(f"{dop_type} Values")
+    plt.suptitle(f"{place_name}: {dop_type}", fontsize=16)
+    plt.title(f'Elevation Angle {elevation_angle}', fontsize=12)
     plt.grid()
-    plt.savefig(f"Results/{place_name}_{dop_type}_{elevation_angle}.png")
-    plt.close()
+    plt.show()
+    #plt.savefig(f"Results/{place_name}_{dop_type}_{elevation_angle}.png")
+    #plt.close()
 
 
 def plot_nr_sats_comparison(pos_ECEF, minute_range, pos_xyz, elevation_angles, place_name):
     plt.figure()
-    cmap = plt.get_cmap("viridis")
-    colors = cmap(np.linspace(0, 1, len(elevation_angles)))
-    for elevation_angle, color in zip(elevation_angles, colors):
+    cmap = plt.get_cmap("tab10")
+    color_cycle = cycle(cmap.colors)
+    for elevation_angle in elevation_angles:
         DOP_df = calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle)
-        plt.plot(DOP_df['Minutes'], DOP_df['n_sats'], marker='o', linestyle='-',
-                 color=color, label=f"{elevation_angle}°")
-    plt.xlabel("Epoch")
-    plt.ylabel("Nr of Sats")
-    plt.title(f"{place_name}: Number of Satellites with different Elevation Angles")
+        plt.plot(DOP_df['Minutes'], DOP_df['n_sats'],
+                 color=next(color_cycle), label=f"{elevation_angle}°")
+    plt.xlabel("Time [min]")
+    plt.ylabel("Number of visible Satellites")
+    plt.suptitle(f"Number of Satellites with different Elevation Angles", fontsize=16)
+    plt.title(f'{place_name}', fontsize=12)
     plt.grid()
     plt.legend()
-    plt.savefig(f'Results/{place_name}_nr_sats_comparison')
-    plt.close()
-
-
+    plt.show()
+    #plt.savefig(f'Results/{place_name}_nr_sats_comparison')
+    #plt.close()
 
 def plot_dop_timeseries_comparison(pos_ECEF, minute_range, pos_xyz, elevation_angles, place_name, dop_type):
     plt.figure()
-    cmap = plt.get_cmap("viridis")
-    colors = cmap(np.linspace(0, 1, len(elevation_angles)))
-
-    for elevation_angle, color in zip(elevation_angles, colors):
+    cmap = plt.get_cmap("tab10")
+    color_cycle = cycle(cmap.colors)
+    for elevation_angle in elevation_angles:
         DOP_df = calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle)
-        plt.plot(DOP_df['Minutes'], DOP_df[f'{dop_type}'], marker='o', linestyle='-',
-                 color=color, label=f"{elevation_angle}°")
-    plt.xlabel("Epoch")
-    plt.ylabel(f"{dop_type} values")
-    plt.title(f"{place_name}: {dop_type} with different Elevation Angles")
+        plt.plot(DOP_df['Minutes'], DOP_df[f'{dop_type}'],
+                 color=next(color_cycle), label=f"{elevation_angle}°")
+    plt.xlabel("Time [min]")
+    plt.ylabel(f"{dop_type} Values")
+    plt.suptitle(f"{dop_type} with different Elevation Angles", fontsize=16)
+    plt.title(f'{place_name}', fontsize=12)
     plt.grid()
     plt.legend()
-    plt.savefig(f'Results/{place_name}_{dop_type}_comparison')
-    plt.close()
+    plt.show()
+    #plt.savefig(f'Results/{place_name}_{dop_type}_comparison')
+    #plt.close()
 
 def exclude_sats(data, exclude_sat_list=[]):
   removed_data = data
@@ -342,36 +347,48 @@ def exclude_sats(data, exclude_sat_list=[]):
     removed_data = removed_data.drop(removed_data[removed_data['PRN'] == i].index)
   return removed_data
 
-def plot_skyplots(pos_ecef, obs_xyz, elevation_angle):
+
+def plot_skyplots(pos_ecef, obs_xyz, elevation_angle, place_name):
   R = create_rotation_matrix(obs_xyz)
+
   dx_vis, dy_vis, dz_vis, prns_vis = find_visible_sats(pos_ecef, obs_xyz, R, elevation_angle)
 
   dX_local = np.vstack([dx_vis, dy_vis, dz_vis])
   dX_ll = R.T @ dX_local
-  N, E, U = dX_ll
 
-  az = np.atan2(E, N)
-  alt = np.atan2(U, np.sqrt(E ** 2 + N ** 2))
+  N, E, D = dX_ll
 
+  dX_norm_ll = np.linalg.norm(dX_ll, axis=0)
+  z = np.arccos(-dX_ll[2, :] / dX_norm_ll)
+  elevation = np.pi / 2 - z
+
+  elevation_deg = np.degrees(elevation)
+  elevation_deg = np.clip(elevation_deg, 0.0, 90.0)
+
+  az = np.arctan2(E, N)
   az_deg = (np.degrees(az) + 360) % 360
-  alt_deg = np.degrees(alt)
 
-  # Skyplot-Koordinaten
   theta = np.radians(az_deg)
-  r = 90 - alt_deg
+  r = 90 - elevation_deg
 
   fig, ax = plt.subplots(subplot_kw={'projection': 'polar'}, figsize=(6, 6))
+  fig.subplots_adjust(right=0.70)
+  for prn in np.unique(prns_vis):
+    mask = prns_vis == prn
+    ax.scatter(theta[mask], r[mask], s=0.5, label=f'PRN {prn}')
 
-  ax.plot(theta, r, 'o', color='black', markersize=2)
+    ax.set_theta_zero_location('N')
+    ax.set_theta_direction(-1)
+    ax.set_rticks([0, 30, 60, 80])
+    ax.set_yticklabels(['90°', '60°', '30°', '10°'])
+    ax.set_rlabel_position(0)
 
-  # Orientierung
-  ax.set_theta_zero_location('N')
-  ax.set_theta_direction(-1)
-
-  ax.set_rticks([0, 30, 60, 90])
-  ax.set_rlabel_position(225)
-
-  ax.set_thetagrids([0, 90, 180, 270], labels=['N', 'E', 'S', 'W'])
-  ax.grid(True)
+    ax.set_thetagrids([0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330], labels=['0°', '30°', '60°', '90°', '120°', '150°', '180°', '210°', '240°', '270°', '300°', '330°'])
+    ax.set_rlim(0, 90)
+    ax.grid(True)
+    ax.legend(loc='center right', bbox_to_anchor=(1.45, 0.5), fontsize=9)
+    plt.suptitle(f'Skyplot {place_name}', fontsize=16, y=0.94)
+    plt.title(f'Elevation Mask: {elevation_angle}°', fontsize=12, x=0.65, pad=15)
 
   plt.show()
+

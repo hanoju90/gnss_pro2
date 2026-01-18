@@ -61,30 +61,25 @@ elevation_angles = [0, 5, 10, 15]
 
 
 # Plot Number of Satellites and PDOP for different elevation angles in Graz and Bodo (individually)
-'''for elevation_angle in elevation_angles:
-    f.plot_nr_sats(pos_ECEF, minute_range, graz_xyz, elevation_angle, 'Graz')
+for elevation_angle in elevation_angles:
+    f.plot_nr_sats(pos_ECEF, minute_range, graz_xyz, elevation_angle, 'Graz Hbf')
     f.plot_nr_sats(pos_ECEF, minute_range, bodo_xyz, elevation_angle, 'Bodo')
-    f.plot_dop_timeseries(pos_ECEF, minute_range, graz_xyz, elevation_angle, 'Graz', 'PDOP')
+    f.plot_dop_timeseries(pos_ECEF, minute_range, graz_xyz, elevation_angle, 'Graz Hbf', 'PDOP')
     f.plot_dop_timeseries(pos_ECEF, minute_range, bodo_xyz, elevation_angle, 'Bodo', 'PDOP')
-    f.plot_dop_timeseries(f.exclude_sats(pos_ECEF, [26, 1, 11]), minute_range, graz_xyz, elevation_angle, 'Graz (without 26, 1, 11)', 'PDOP')
-    f.plot_dop_timeseries(f.exclude_sats(pos_ECEF, [26, 1, 11]), minute_range, bodo_xyz, elevation_angle, 'Bodo (without 26, 1, 11)', 'PDOP')'''
-
+    f.plot_dop_timeseries(f.exclude_sats(pos_ECEF, [26, 1, 11]), minute_range, graz_xyz, elevation_angle, 'Graz Hbf (without 26, 1, 11)', 'PDOP')
+    f.plot_dop_timeseries(f.exclude_sats(pos_ECEF, [26, 1, 11]), minute_range, bodo_xyz, elevation_angle, 'Bodo (without 26, 1, 11)', 'PDOP')
+    f.plot_skyplots(pos_ECEF, graz_xyz, elevation_angle, 'Graz Hbf')
+    f.plot_skyplots(pos_ECEF, bodo_xyz, elevation_angle, 'Bodo')
 # Plot Number of Satellites for different elevation angles in Graz (comparison)
-#f.plot_nr_sats_comparison(pos_ECEF, minute_range, graz_xyz, elevation_angles, 'Graz')
-#f.plot_dop_timeseries_comparison(pos_ECEF, minute_range, graz_xyz, elevation_angles, 'Graz', 'PDOP')
-#f.plot_dop_timeseries_comparison(pos_ECEF, minute_range, graz_xyz, elevation_angles, 'Graz', 'HDOP')
-#f.plot_dop_timeseries_comparison(pos_ECEF, minute_range, graz_xyz, elevation_angles, 'Graz', 'VDOP')
+f.plot_nr_sats_comparison(pos_ECEF, minute_range, graz_xyz, elevation_angles, 'Graz Hbf')
+f.plot_dop_timeseries_comparison(pos_ECEF, minute_range, graz_xyz, elevation_angles, 'Graz Hbf', 'PDOP')
+f.plot_dop_timeseries_comparison(pos_ECEF, minute_range, graz_xyz, elevation_angles, 'Graz Hbf', 'HDOP')
+f.plot_dop_timeseries_comparison(pos_ECEF, minute_range, graz_xyz, elevation_angles, 'Graz Hbf', 'VDOP')
 
 
 
 # Plot Number of Satellites for different elevation angles in Bodo (comparison)
-#f.plot_nr_sats_comparison(pos_ECEF, minute_range, bodo_xyz, elevation_angles, 'Bodo')
-#f.plot_dop_timeseries_comparison(pos_ECEF, minute_range, bodo_xyz, elevation_angles, 'Bodo', 'PDOP')
-#f.plot_dop_timeseries_comparison(pos_ECEF, minute_range, bodo_xyz, elevation_angles, 'Bodo', 'HDOP')
-#f.plot_dop_timeseries_comparison(pos_ECEF, minute_range, bodo_xyz, elevation_angles, 'Bodo', 'VDOP')
-
-# TODO: Visualize skyplots
-f.plot_skyplots(pos_ECEF, graz_xyz, 0)
-
-
-# TODO: Exclude individual satellites and analyse DOP timeseries
+f.plot_nr_sats_comparison(pos_ECEF, minute_range, bodo_xyz, elevation_angles, 'Bodo')
+f.plot_dop_timeseries_comparison(pos_ECEF, minute_range, bodo_xyz, elevation_angles, 'Bodo', 'PDOP')
+f.plot_dop_timeseries_comparison(pos_ECEF, minute_range, bodo_xyz, elevation_angles, 'Bodo', 'HDOP')
+f.plot_dop_timeseries_comparison(pos_ECEF, minute_range, bodo_xyz, elevation_angles, 'Bodo', 'VDOP')
