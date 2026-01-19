@@ -437,7 +437,7 @@ def plot_nr_sats_comparison(pos_ECEF, minute_range, pos_xyz, elevation_angles, p
     color_cycle = cycle(cmap.colors)
     for elevation_angle in elevation_angles:
         DOP_df = calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle)
-        print(f"Average number of satellites in {place_name} with elev angle {elevation_angle}: {DOP_df['n_sats'].mean():.1f}")
+        print(f"Average number of satellites in {place_name} with elev angle {elevation_angle}°: {DOP_df['n_sats'].mean():.1f}")
         plt.plot(DOP_df['Minutes'], DOP_df['n_sats'],
                  color=next(color_cycle), label=f"{elevation_angle}°")
     plt.xlabel("Time [min]")
