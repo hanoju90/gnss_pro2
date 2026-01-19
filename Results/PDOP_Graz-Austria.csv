@@ -1,0 +1,5 @@
+place,elevation_deg,mean_PDOP,median_PDOP,min_PDOP,max_PDOP,avg_n_sats
+Graz-Austria,0,1.44,1.42,1.08,1.98,10.88
+Graz-Austria,5,1.57,1.57,1.15,2.67,10.05
+Graz-Austria,10,1.81,1.76,1.37,2.9,9.03
+Graz-Austria,15,2.11,1.98,1.58,3.41,7.95

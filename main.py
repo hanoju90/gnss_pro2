@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import function as f
 
+print("====== GNSS Lab 02: Satellite constellations and calculation of DOP-values ======")
+
 # Define variables
 minute_range = [900, 1200]
 # ECEF position of Graz

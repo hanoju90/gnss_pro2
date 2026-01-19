@@ -57,6 +57,7 @@ def dms_to_rad(d,m,s):
     rad = np.radians(d_float)
     return rad
 
+
 def mask_data(data, sat_nr):
     """
           Function to filter for a specific satellite in the position file
@@ -69,6 +70,7 @@ def mask_data(data, sat_nr):
         """
     mask = data[data['PRN'] == sat_nr]
     return mask
+
 
 def xyz_to_lamphih(data):
     """
@@ -101,6 +103,7 @@ def xyz_to_lamphih(data):
 
     return lam_deg, phi_deg, h
 
+
 def time_mask(df, range):
     """
         Function to filter the Dataframe of the satellite position data to a given time slot
@@ -115,6 +118,7 @@ def time_mask(df, range):
     stop = range[1]
     df = df.loc[(df["Minutes"] >= start) & (df["Minutes"] <= stop)]
     return df
+
 
 def plot_orbit(pos_df, frame, prn_list, compare=0):
     """
@@ -178,7 +182,6 @@ def plot_orbit(pos_df, frame, prn_list, compare=0):
             ax.set_ylabel('y [m]')
             ax.set_zlabel('z [m]')
             ax.set_title(plot_title)
-            # ax.view_init(elev=30, azim=120)
             plt.savefig(f"Results/Orbit_{prn}_{frame}.png")
             plt.close()
         elif compare == 1:
@@ -205,13 +208,8 @@ def plot_orbit(pos_df, frame, prn_list, compare=0):
         ax_comp.set_zlabel('z [m]')
         ax_comp.set_title(plot_title)
         ax_comp.legend(bbox_to_anchor=(1.12, 0.5), loc="center left", borderaxespad=0)
-        # ax.view_init(elev=30, azim=120)
-        # plt.show()
         plt.savefig(f"Results/Orbits_comparison_{frame}.png", bbox_inches="tight")
         plt.close()
-
-
-
 
 
 def plot_groundtrack(data, prn_nr):
@@ -226,7 +224,6 @@ def plot_groundtrack(data, prn_nr):
   '''
   plt.figure(figsize=(12, 6))
   ax = plt.axes(projection=ccrs.PlateCarree())
-  #ax = plt.axes()
 
   ax.stock_img()
   ax.coastlines()
@@ -259,6 +256,7 @@ def create_rotation_matrix(pos_xyz):
                        [np.cos(pos_phi), 0,
                         -np.sin(pos_phi)]])
     return R_NED
+
 
 def find_visible_sats(epoch_data, pos_xyz, R_NED, elevation_angle):
     """
@@ -295,7 +293,6 @@ def find_visible_sats(epoch_data, pos_xyz, R_NED, elevation_angle):
     return dx_vis, dy_vis, dz_vis, prns_vis
 
 
-
 def calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle):
     '''Function to calculate DOP values for a given position at each epoch
         Args:
@@ -309,7 +306,7 @@ def calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle):
     pos_ECEF_timemask = time_mask(pos_ECEF, minute_range)
     pos_ECEF_timemask_grouped = pos_ECEF_timemask.groupby('Minutes')
 
-    # Rotation matrix for Graz to go from ECEF to N-E-U
+    # Rotation matrix for Graz to go from ECEF to N-E-D
     R_NED = create_rotation_matrix(pos_xyz)
 
     results = []
@@ -350,9 +347,9 @@ def calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle):
         Qx_local_level = R_NED.T @ Qxyz @ R_NED
 
         # Calculate HDOP and VDOP
-        qnn, qee, quu = np.diag(Qx_local_level)
+        qnn, qee, qdd = np.diag(Qx_local_level)
         HDOP = np.sqrt(qnn + qee)
-        VDOP = np.sqrt(quu)
+        VDOP = np.sqrt(qdd)
 
         results.append({
             "Minutes": minute,
@@ -363,6 +360,7 @@ def calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle):
 
     DOP_df = pd.DataFrame(results).sort_values("Minutes")
     return DOP_df
+
 
 def calculate_pdop_stats(pos_ECEF, minute_range, pos_xyz, elevation_angles, place_name, exclude_sat_list=None):
     '''
@@ -417,9 +415,9 @@ def plot_nr_sats(pos_ECEF, minute_range, pos_xyz, elevation_angle, place_name):
     plt.suptitle(f"Number of visible Satellites for: {place_name}", fontsize=16)
     plt.title(f'Elevation Angle: {elevation_angle}°', fontsize=11)
     plt.grid()
-    #plt.show()
     plt.savefig(f"Results/{place_name}-nr-sats-{elevation_angle}.png")
     plt.close()
+
 
 def plot_dop_timeseries(pos_ECEF, minute_range, pos_xyz, elevation_angle, place_name, dop_type, exclude_sat_list=None):
     '''
@@ -447,7 +445,6 @@ def plot_dop_timeseries(pos_ECEF, minute_range, pos_xyz, elevation_angle, place_
     plt.suptitle(f"{dop_type} for: {place_name}:", fontsize=16)
     plt.title(f'Elevation Angle {elevation_angle}°{exclude_str_title}', fontsize=11)
     plt.grid()
-    #plt.show()
     plt.savefig(f"Results/{place_name}-{dop_type}-{elevation_angle}{exclude_str_filename}.png")
     plt.close()
 
@@ -479,9 +476,9 @@ def plot_nr_sats_comparison(pos_ECEF, minute_range, pos_xyz, elevation_angles, p
     plt.title(f'Comparison of different elevation angles', fontsize=11)
     plt.grid()
     plt.legend()
-    #plt.show()
     plt.savefig(f'Results/{place_name}-nr-sats_comparison{exclude_str_filename}')
     plt.close()
+
 
 def plot_dop_timeseries_comparison(pos_ECEF, minute_range, pos_xyz, elevation_angles, place_name, dop_type, exclude_sat_list=None):
     '''
@@ -516,7 +513,6 @@ def plot_dop_timeseries_comparison(pos_ECEF, minute_range, pos_xyz, elevation_an
     plt.title(f'Comparison of different elevation angles {exclude_str_title}', fontsize=11)
     plt.grid()
     plt.legend()
-    #plt.show()
     plt.savefig(f'Results/{place_name}-{dop_type}-comparison{exclude_str_filename}')
     plt.close()
 
@@ -601,6 +597,5 @@ def plot_skyplots(pos_ecef, minute_range, obs_xyz, elevation_angle, place_name, 
   plt.suptitle(f'Skyplot {place_name} {time_range_title}', fontsize=16, y=0.94)
   plt.title(f'Elevation Mask: {elevation_angle}°{exclude_str_title}', fontsize=11, x=0.65, pad=15)
   plt.savefig(f"Results/{place_name}-skyplot-{elevation_angle}{exclude_str_filename}", bbox_inches="tight")
-  #plt.show()
   plt.close()
 

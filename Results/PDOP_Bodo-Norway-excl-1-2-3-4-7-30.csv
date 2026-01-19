@@ -1,0 +1,5 @@
+place,elevation_deg,mean_PDOP,median_PDOP,min_PDOP,max_PDOP,avg_n_sats
+"Bodo-Norway (Excluded Satellites: G01, G02, G03, G04, G07, G30)",0,2.34,2.17,1.49,4.42,7.52
+"Bodo-Norway (Excluded Satellites: G01, G02, G03, G04, G07, G30)",5,2.75,2.4,1.78,7.32,6.96
+"Bodo-Norway (Excluded Satellites: G01, G02, G03, G04, G07, G30)",10,3.52,2.87,2.01,10.28,6.39
+"Bodo-Norway (Excluded Satellites: G01, G02, G03, G04, G07, G30)",15,44.68,3.91,2.14,11240.35,5.81
