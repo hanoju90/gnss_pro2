@@ -11,7 +11,7 @@ bodo_xyz = pd.Series([2392289, 613884, 5860822], index=['X', 'Y', 'Z']) # Coordi
 # Elevation angles for elevation masks
 elevation_angles = [0, 5, 10, 15]
 # List of satellites to be excluded
-exclude_sat_list = [26, 1, 11]
+exclude_sat_list = [1, 2, 3, 4, 7, 30]
 
 # Read in data
 pos_ECEF = f.read_data("pos_ECEF.txt")
@@ -55,7 +55,6 @@ f.plot_groundtrack(gps1_array, 1)
 f.plot_groundtrack(gps30_array, 30)
 
 
-
 # Plot Number of Satellites and PDOP for different elevation angles in Graz and Bodo (individually)
 print("Generating plots for nr. of visible satellites and DOP timeseries...")
 
@@ -72,11 +71,13 @@ for elevation_angle in elevation_angles:
     f.plot_dop_timeseries(pos_ECEF_excluded_sats, minute_range, bodo_xyz, elevation_angle, 'Bodo-Norway', 'PDOP', exclude_sat_list)
 
     # Plot skyplots
-    f.plot_skyplots(pos_ECEF, graz_xyz, elevation_angle, 'Graz-Austria')
-    f.plot_skyplots(pos_ECEF, bodo_xyz, elevation_angle, 'Bodo-Norway')
+    f.plot_skyplots(pos_ECEF, minute_range, graz_xyz, elevation_angle, 'Graz-Austria')
+    f.plot_skyplots(pos_ECEF, minute_range, bodo_xyz, elevation_angle, 'Bodo-Norway')
+
     # Skyplots with excluded sats
-    f.plot_skyplots(pos_ECEF_excluded_sats, graz_xyz, elevation_angle, 'Graz-Austria', exclude_sat_list)
-    f.plot_skyplots(pos_ECEF_excluded_sats, bodo_xyz, elevation_angle, 'Bodo-Norway', exclude_sat_list)
+    f.plot_skyplots(pos_ECEF_excluded_sats, minute_range, graz_xyz, elevation_angle, 'Graz-Austria', exclude_sat_list)
+    f.plot_skyplots(pos_ECEF_excluded_sats, minute_range, bodo_xyz, elevation_angle, 'Bodo-Norway', exclude_sat_list)
+
 
 # Plot Number of Satellites for different elevation angles in Graz (comparison)
 f.plot_nr_sats_comparison(pos_ECEF, minute_range, graz_xyz, elevation_angles, 'Graz-Austria')
