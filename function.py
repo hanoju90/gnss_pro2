@@ -5,6 +5,7 @@ import cartopy.crs as ccrs
 from itertools import cycle
 
 
+
 def read_data(pos_filename):
     """
       Function to read in satellite position data
@@ -363,6 +364,39 @@ def calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle):
     DOP_df = pd.DataFrame(results).sort_values("Minutes")
     return DOP_df
 
+def calculate_pdop_stats(pos_ECEF, minute_range, pos_xyz, elevation_angles, place_name, exclude_sat_list=None):
+    '''
+    Function to calculate PDOP statistics (mean, max, min, avg. nr of sats)
+        Args:
+          pos_ECEF: Dataframe with satellite positions
+          minute_range: time range within which DOP values should be calculated
+          pos_xyz: receiver position
+          elevation_angles: given angles for elevation mask
+          place_name: Place name for plot title and filename
+          exclude_sat_list: list of excluded satellites for
+        Returns: CSV with statistics
+    '''
+    exclude_str = (f" (Excluded Satellites: {', '.join(f'G{sat:02d}' for sat in exclude_sat_list)})"if exclude_sat_list else "")
+    exclude_str_filename = f"-excl{''.join(f'-{sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
+
+    results = []
+    for elevation_angle in elevation_angles:
+        dop_df = calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle)
+        stats = {
+            'place': f"{place_name}{exclude_str}",
+            'elevation_deg': elevation_angle,
+            'mean_PDOP': dop_df['PDOP'].mean(),
+            'median_PDOP': dop_df['PDOP'].median(),
+            'min_PDOP': dop_df['PDOP'].min(),
+            'max_PDOP': dop_df['PDOP'].max(),
+            'avg_n_sats': dop_df['n_sats'].mean()
+        }
+        results.append(stats)
+
+    pdop_stats_df = pd.DataFrame(results).round(2)
+    pdop_stats_df.to_csv(f'Results/PDOP_{place_name}{exclude_str_filename}.csv', index=False)
+
+
 def plot_nr_sats(pos_ECEF, minute_range, pos_xyz, elevation_angle, place_name):
     """
         Plot the number of visible satellites from a given position depending on the elevation mask
@@ -437,7 +471,6 @@ def plot_nr_sats_comparison(pos_ECEF, minute_range, pos_xyz, elevation_angles, p
     color_cycle = cycle(cmap.colors)
     for elevation_angle in elevation_angles:
         DOP_df = calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle)
-        print(f"Average number of satellites in {place_name} with elev angle {elevation_angle}°: {DOP_df['n_sats'].mean():.1f}")
         plt.plot(DOP_df['Minutes'], DOP_df['n_sats'],
                  color=next(color_cycle), label=f"{elevation_angle}°")
     plt.xlabel("Time [min]")
@@ -503,7 +536,7 @@ def exclude_sats(data, exclude_sat_list=[]):
     return removed_data
 
 
-def plot_skyplots(pos_ecef, obs_xyz, elevation_angle, place_name, exclude_sat_list=None):
+def plot_skyplots(pos_ecef, minute_range, obs_xyz, elevation_angle, place_name, exclude_sat_list=None):
   '''
   Create skyplots of the visible satellites at a given position for a given elevation mask
   Args:
@@ -516,8 +549,8 @@ def plot_skyplots(pos_ecef, obs_xyz, elevation_angle, place_name, exclude_sat_li
         Skyplot of the receiver position
   '''
   R = create_rotation_matrix(obs_xyz)
-
-  dx_vis, dy_vis, dz_vis, prns_vis = find_visible_sats(pos_ecef, obs_xyz, R, elevation_angle)
+  pos_ecef_timemask = time_mask(pos_ecef, minute_range)
+  dx_vis, dy_vis, dz_vis, prns_vis = find_visible_sats(pos_ecef_timemask, obs_xyz, R, elevation_angle)
 
   dX_local = np.vstack([dx_vis, dy_vis, dz_vis])
   dX_ll = R.T @ dX_local
@@ -542,12 +575,18 @@ def plot_skyplots(pos_ecef, obs_xyz, elevation_angle, place_name, exclude_sat_li
     if exclude_sat_list else ""
   )
   exclude_str_filename = f"-excl{''.join(f'-{sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
-
+  time_range_title = (
+    f"(Time range: {'-'.join(f'{min}' for min in minute_range)} min)"
+    if exclude_sat_list else ""
+  )
   fig, ax = plt.subplots(subplot_kw={'projection': 'polar'}, figsize=(6, 6))
   fig.subplots_adjust(right=0.70)
+  cmap = plt.get_cmap("tab20")
+  color_cycle = cycle(cmap.colors)
+
   for prn in np.unique(prns_vis):
     mask = prns_vis == prn
-    ax.scatter(theta[mask], r[mask], s=0.5, label=f'PRN {prn}')
+    ax.scatter(theta[mask], r[mask], s=0.5, label=f'PRN {prn}', color=next(color_cycle))
 
     ax.set_theta_zero_location('N')
     ax.set_theta_direction(-1)
@@ -558,10 +597,10 @@ def plot_skyplots(pos_ecef, obs_xyz, elevation_angle, place_name, exclude_sat_li
     ax.set_thetagrids([0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330], labels=['0°', '30°', '60°', '90°', '120°', '150°', '180°', '210°', '240°', '270°', '300°', '330°'])
     ax.set_rlim(0, 90)
     ax.grid(True)
-    ax.legend(loc='center right', bbox_to_anchor=(1.45, 0.5), fontsize=9)
-  plt.suptitle(f'Skyplot {place_name}', fontsize=16, y=0.94)
+    ax.legend(loc='center right', bbox_to_anchor=(1.45, 0.5), fontsize=9, markerscale=7)
+  plt.suptitle(f'Skyplot {place_name} {time_range_title}', fontsize=16, y=0.94)
   plt.title(f'Elevation Mask: {elevation_angle}°{exclude_str_title}', fontsize=11, x=0.65, pad=15)
-  plt.savefig(f"Results/{place_name}-skyplot-{elevation_angle}{exclude_str_filename}")
+  plt.savefig(f"Results/{place_name}-skyplot-{elevation_angle}{exclude_str_filename}", bbox_inches="tight")
   #plt.show()
   plt.close()
 
