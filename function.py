@@ -380,11 +380,11 @@ def plot_nr_sats(pos_ECEF, minute_range, pos_xyz, elevation_angle, place_name):
     plt.plot(DOP_df['Minutes'], DOP_df['n_sats'], color='blue')
     plt.xlabel("Time [min]")
     plt.ylabel("Number of visible Satellites")
-    plt.suptitle(f"{place_name}: Number of Satellites", fontsize=16)
-    plt.title(f'Elevation Angle: {elevation_angle}°', fontsize=12)
+    plt.suptitle(f"Number of visible Satellites for: {place_name}", fontsize=16)
+    plt.title(f'Elevation Angle: {elevation_angle}°', fontsize=11)
     plt.grid()
     #plt.show()
-    plt.savefig(f"Results/{place_name}_nr_sats_{elevation_angle}.png")
+    plt.savefig(f"Results/{place_name}-nr-sats-{elevation_angle}.png")
     plt.close()
 
 def plot_dop_timeseries(pos_ECEF, minute_range, pos_xyz, elevation_angle, place_name, dop_type, exclude_sat_list=None):
@@ -404,17 +404,17 @@ def plot_dop_timeseries(pos_ECEF, minute_range, pos_xyz, elevation_angle, place_
     DOP_df = calculate_dop_series(pos_ECEF, minute_range, pos_xyz, elevation_angle)
 
     # Build strings for title and filename to inform about satellites excluded in the calculation
-    exclude_str_suptitle = f" with excluded{''.join(f' {sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
-    exclude_str_filename = f"_excl{''.join(f'_{sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
+    exclude_str_title = (f" (Excluded Satellites: {', '.join(f'G{sat:02d}' for sat in exclude_sat_list)})"if exclude_sat_list else "")
+    exclude_str_filename = f"-excl{''.join(f'-{sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
     plt.figure()
     plt.plot(DOP_df['Minutes'], DOP_df[f'{dop_type}'], color='blue')
     plt.xlabel("Time [min]")
     plt.ylabel(f"{dop_type} Values")
-    plt.suptitle(f"{place_name}: {dop_type}", fontsize=16)
-    plt.title(f'Elevation Angle {elevation_angle}°{exclude_str_suptitle}°', fontsize=12)
+    plt.suptitle(f"{dop_type} for: {place_name}:", fontsize=16)
+    plt.title(f'Elevation Angle {elevation_angle}°{exclude_str_title}', fontsize=11)
     plt.grid()
     #plt.show()
-    plt.savefig(f"Results/{place_name}_{dop_type}_{elevation_angle}{exclude_str_filename}.png")
+    plt.savefig(f"Results/{place_name}-{dop_type}-{elevation_angle}{exclude_str_filename}.png")
     plt.close()
 
 
@@ -431,9 +431,7 @@ def plot_nr_sats_comparison(pos_ECEF, minute_range, pos_xyz, elevation_angles, p
     Returns:
          Plot with the number of satellites for each elevation mask
     '''
-
-    exclude_str_suptitle = f" with excluded{''.join(f' {sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
-    exclude_str_filename = f"_excl{''.join(f'_{sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
+    exclude_str_filename = f"-excl{''.join(f'-{sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
     plt.figure()
     cmap = plt.get_cmap("tab10")
     color_cycle = cycle(cmap.colors)
@@ -443,13 +441,13 @@ def plot_nr_sats_comparison(pos_ECEF, minute_range, pos_xyz, elevation_angles, p
         plt.plot(DOP_df['Minutes'], DOP_df['n_sats'],
                  color=next(color_cycle), label=f"{elevation_angle}°")
     plt.xlabel("Time [min]")
-    plt.ylabel("Number of visible Satellites")
-    plt.suptitle(f"Number of Satellites with different Elevation Angles", fontsize=16)
-    plt.title(f'{place_name}{exclude_str_suptitle}', fontsize=12)
+    plt.ylabel("Number of visible satellites")
+    plt.suptitle(f"Number of visible satellites for: {place_name}", fontsize=16)
+    plt.title(f'Comparison of different elevation angles', fontsize=11)
     plt.grid()
     plt.legend()
     #plt.show()
-    plt.savefig(f'Results/{place_name}_nr_sats_comparison{exclude_str_filename}')
+    plt.savefig(f'Results/{place_name}-nr-sats_comparison{exclude_str_filename}')
     plt.close()
 
 def plot_dop_timeseries_comparison(pos_ECEF, minute_range, pos_xyz, elevation_angles, place_name, dop_type, exclude_sat_list=None):
@@ -467,8 +465,11 @@ def plot_dop_timeseries_comparison(pos_ECEF, minute_range, pos_xyz, elevation_an
     Returns: Plot with DOP-timeseries for each elevation mask
     '''
 
-    exclude_str_suptitle = f" with excluded{''.join(f' {sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
-    exclude_str_filename = f"_excl{''.join(f'_{sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
+    exclude_str_title = (
+      f" (Excluded Satellites: {', '.join(f'G{sat:02d}' for sat in exclude_sat_list)})"
+      if exclude_sat_list else ""
+    )
+    exclude_str_filename = f"-excl{''.join(f'-{sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
     plt.figure()
     cmap = plt.get_cmap("tab10")
     color_cycle = cycle(cmap.colors)
@@ -478,12 +479,12 @@ def plot_dop_timeseries_comparison(pos_ECEF, minute_range, pos_xyz, elevation_an
                  color=next(color_cycle), label=f"{elevation_angle}°")
     plt.xlabel("Time [min]")
     plt.ylabel(f"{dop_type} Values")
-    plt.suptitle(f"{dop_type} with different Elevation Angles", fontsize=16)
-    plt.title(f'{place_name}{exclude_str_suptitle}', fontsize=12)
+    plt.suptitle(f"{dop_type} for: {place_name}", fontsize=16)
+    plt.title(f'Comparison of different elevation angles {exclude_str_title}', fontsize=11)
     plt.grid()
     plt.legend()
     #plt.show()
-    plt.savefig(f'Results/{place_name}_{dop_type}_comparison{exclude_str_filename}')
+    plt.savefig(f'Results/{place_name}-{dop_type}-comparison{exclude_str_filename}')
     plt.close()
 
 def exclude_sats(data, exclude_sat_list=[]):
@@ -536,8 +537,11 @@ def plot_skyplots(pos_ecef, obs_xyz, elevation_angle, place_name, exclude_sat_li
   theta = np.radians(az_deg)
   r = 90 - elevation_deg
 
-  exclude_str_suptitle = f" with excluded{''.join(f' {sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
-  exclude_str_filename = f"_excl{''.join(f'_{sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
+  exclude_str_title = (
+    f" (Excluded Satellites: {', '.join(f'G{sat:02d}' for sat in exclude_sat_list)})"
+    if exclude_sat_list else ""
+  )
+  exclude_str_filename = f"-excl{''.join(f'-{sat}' for sat in exclude_sat_list)}" if exclude_sat_list else ""
 
   fig, ax = plt.subplots(subplot_kw={'projection': 'polar'}, figsize=(6, 6))
   fig.subplots_adjust(right=0.70)
@@ -556,8 +560,8 @@ def plot_skyplots(pos_ecef, obs_xyz, elevation_angle, place_name, exclude_sat_li
     ax.grid(True)
     ax.legend(loc='center right', bbox_to_anchor=(1.45, 0.5), fontsize=9)
   plt.suptitle(f'Skyplot {place_name}', fontsize=16, y=0.94)
-  plt.title(f'Elevation Mask: {elevation_angle}°{exclude_str_suptitle}', fontsize=12, x=0.65, pad=15)
-  plt.savefig(f"Results/{place_name}_skyplot_{elevation_angle}{exclude_str_filename}")
+  plt.title(f'Elevation Mask: {elevation_angle}°{exclude_str_title}', fontsize=11, x=0.65, pad=15)
+  plt.savefig(f"Results/{place_name}-skyplot-{elevation_angle}{exclude_str_filename}")
   #plt.show()
   plt.close()
 
